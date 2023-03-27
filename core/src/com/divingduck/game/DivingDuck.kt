@@ -52,7 +52,7 @@ class DivingDuck : ApplicationAdapter() {
         // Add systems to the engine
         engine.addSystem(BirdSystem(virtualHeight))
         engine.addSystem(RenderSystem(camera, batch))
-        engine.addSystem(PipeSystem())
+        engine.addSystem(PipeSystem(shapeRenderer, camera, batch))
 
         setInputProcessor()
     }
@@ -67,17 +67,9 @@ class DivingDuck : ApplicationAdapter() {
 
         engine.update(Gdx.graphics.deltaTime)
 
-        // Draw pipes as white rectangles
-        shapeRenderer.projectionMatrix = camera.combined
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
-        val pipeEntities = engine.getEntitiesFor(Family.all(PipeComponent::class.java, PositionComponent::class.java).get())
-        for (pipeEntity in pipeEntities) {
-            val positionComponent = pipeEntity.getComponent(PositionComponent::class.java)
-            shapeRenderer.rect(positionComponent.position.x, positionComponent.position.y, PIPE_WIDTH, PIPE_HEIGHT)
-        }
-        shapeRenderer.end()
-        camera.update()
-        batch.projectionMatrix = camera.combined
+
+
+
     }
 
     private fun spawnPipe() {
@@ -96,6 +88,8 @@ class DivingDuck : ApplicationAdapter() {
         val pipeEntity = Entity()
         pipeEntity.add(PositionComponent(Vector2(virtualWidth, y)))
         pipeEntity.add(PipeComponent())
+        pipeEntity.add(SizeComponent(PIPE_WIDTH, PIPE_HEIGHT))
+        pipeEntity.add(CollisionComponent())
         return pipeEntity
     }
 
@@ -122,6 +116,7 @@ class DivingDuck : ApplicationAdapter() {
     private fun createBirdEntity(birdTexture: Texture): Entity {
         val birdEntity = Entity()
         birdEntity.add(PositionComponent())
+        birdEntity.add(CollisionComponent())
         birdEntity.add(TextureComponent(birdTexture))
         val birdWidth = birdHeight * birdTexture.width / birdTexture.height.toFloat()
         birdEntity.add(SizeComponent(birdWidth, birdHeight))

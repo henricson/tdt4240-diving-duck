@@ -11,6 +11,7 @@ class BirdSystem(private val virtualHeight: Float) : EntitySystem() {
     private val birdFamily = Family.all(BirdComponent::class.java, PositionComponent::class.java).get()
     private val collisionMapper = ComponentMapper.getFor(CollisionComponent::class.java)
     private val positionMapper = ComponentMapper.getFor(PositionComponent::class.java)
+    private val sizeMapper = ComponentMapper.getFor(SizeComponent::class.java)
 
     override fun update(deltaTime: Float) {
         val birdEntities = engine.getEntitiesFor(birdFamily)
@@ -39,11 +40,11 @@ class BirdSystem(private val virtualHeight: Float) : EntitySystem() {
 
                 pipeEntities.forEach { pipeEntity ->
                     val pipePosition = positionMapper.get(pipeEntity)
-                    val pipeBounds = Rectangle(pipePosition.position.x, pipePosition.position.y, 50f, 100f)
+                    val pipeSize = sizeMapper.get(pipeEntity)
+                    val pipeBounds = Rectangle(pipePosition.position.x, pipePosition.position.y, pipeSize.width, pipeSize.height)
 
                     if (bounds.overlaps(pipeBounds)) {
                         // Collision detected
-                        birdComponent.velocity.y = 0f
                         engine.getSystem(PipeSystem::class.java).stopMovement()
                     }
                 }
