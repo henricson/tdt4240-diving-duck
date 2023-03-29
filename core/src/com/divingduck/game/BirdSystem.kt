@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
 import com.divingduck.components.*
+import kotlin.math.atan2
 
 class BirdSystem(private val virtualHeight: Float) : EntitySystem() {
     private val birdFamily = Family.all(BirdComponent::class.java, PositionComponent::class.java).get()
@@ -20,6 +21,7 @@ class BirdSystem(private val virtualHeight: Float) : EntitySystem() {
             val birdComponent = birdEntity.getComponent(BirdComponent::class.java)
             val positionComponent = birdEntity.getComponent(PositionComponent::class.java)
             val sizeComponent = birdEntity.getComponent(SizeComponent::class.java)
+            val rotationComponent = birdEntity.getComponent(RotationComponent::class.java)
 
             if(positionComponent.position.y > 0) {
                 birdComponent.velocity.y +=  GRAVITY * deltaTime
@@ -32,6 +34,11 @@ class BirdSystem(private val virtualHeight: Float) : EntitySystem() {
             }
             positionComponent.position.y = MathUtils.clamp(positionComponent.position.y, 0f, virtualHeight - sizeComponent.height)
             positionComponent.position.add(birdComponent.velocity.cpy().scl(deltaTime))
+
+            // TODO: Når hastighet er integrert med posisjon burde vi ha inn at rotasjonen er beregnet av
+            //  fuggelens hastighet i både x og y retning (altså ikke en 200F under)
+
+            rotationComponent.rotation = (-atan2(birdComponent.velocity.y.toFloat(), 200F) * 180 / Math.PI).toInt();
 
             if (collisionMapper.has(birdEntity)) {
                 val collidable = collisionMapper.get(birdEntity)

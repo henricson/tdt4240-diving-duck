@@ -2,7 +2,6 @@ package com.divingduck.game
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputAdapter
@@ -116,6 +115,7 @@ class DivingDuck : ApplicationAdapter() {
     private fun createBirdEntity(birdTexture: Texture): Entity {
         val birdEntity = Entity()
         birdEntity.add(PositionComponent())
+        birdEntity.add(RotationComponent())
         birdEntity.add(CollisionComponent())
         birdEntity.add(TextureComponent(birdTexture))
         val birdWidth = birdHeight * birdTexture.width / birdTexture.height.toFloat()
