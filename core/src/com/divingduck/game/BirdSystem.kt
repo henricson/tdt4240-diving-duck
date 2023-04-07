@@ -5,6 +5,8 @@ import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
+import com.divingduck.apiclient.apis.ScoreApi
+import com.divingduck.apiclient.models.ScoreDTO
 import com.divingduck.components.*
 import kotlin.math.atan2
 
@@ -13,6 +15,8 @@ class BirdSystem(private val virtualHeight: Float) : EntitySystem() {
     private val collisionMapper = ComponentMapper.getFor(CollisionComponent::class.java)
     private val positionMapper = ComponentMapper.getFor(PositionComponent::class.java)
     private val sizeMapper = ComponentMapper.getFor(SizeComponent::class.java)
+    private val apiClient = ScoreApi("https://divingduckserver-v2.azurewebsites.net/")
+    private var shouldReportScore = true;
 
     override fun update(deltaTime: Float) {
         val birdEntities = engine.getEntitiesFor(birdFamily)
@@ -53,6 +57,12 @@ class BirdSystem(private val virtualHeight: Float) : EntitySystem() {
                     if (bounds.overlaps(pipeBounds)) {
                         // Collision detected
                         engine.getSystem(PipeSystem::class.java).stopMovement()
+                        if(shouldReportScore) {
+                            apiClient.apiScorePost(ScoreDTO(pipePosition.position.x.toInt()))
+                            println("Collision detected! Score is ${pipePosition.position.x}")
+                            shouldReportScore = false
+                        }
+
                     }
                 }
             }

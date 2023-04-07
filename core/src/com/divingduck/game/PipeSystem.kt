@@ -5,6 +5,8 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.divingduck.apiclient.apis.ScoreApi
+import com.divingduck.apiclient.models.ScoreDTO
 import com.divingduck.components.PipeComponent
 import com.divingduck.components.PositionComponent
 import com.divingduck.components.SizeComponent
@@ -12,6 +14,7 @@ import com.divingduck.components.SizeComponent
 
 class PipeSystem(private val shapeRenderer : ShapeRenderer, private val camera : OrthographicCamera, private val batch : Batch) : EntitySystem() {
     private val pipeFamily = Family.all(PipeComponent::class.java, PositionComponent::class.java).get()
+
     override fun update(deltaTime: Float) {
         val pipeEntities = engine.getEntitiesFor(pipeFamily)
 
@@ -36,6 +39,7 @@ class PipeSystem(private val shapeRenderer : ShapeRenderer, private val camera :
     }
 
     fun stopMovement() {
+
         PIPE_SPEED = 0f
     }
 
