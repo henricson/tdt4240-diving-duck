@@ -1,4 +1,4 @@
-package io.swagger.client.infrastructure
+package com.divingduck.apiclient.infrastructure
 
 enum class ResponseType {
     Success, Informational, Redirection, ClientError, ServerError

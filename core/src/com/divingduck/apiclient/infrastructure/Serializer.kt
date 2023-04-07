@@ -1,4 +1,4 @@
-package io.swagger.client.infrastructure
+package com.divingduck.apiclient.infrastructure
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter

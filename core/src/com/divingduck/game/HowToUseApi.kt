@@ -1,10 +1,10 @@
 package com.divingduck.game
 
-import io.swagger.client.apis.ScoreApi
-import io.swagger.client.infrastructure.ClientException
-import io.swagger.client.infrastructure.ServerException
-import io.swagger.client.models.Score
-import io.swagger.client.models.ScoreDTO
+import com.divingduck.apiclient.apis.ScoreApi
+import com.divingduck.apiclient.infrastructure.ClientException
+import com.divingduck.apiclient.infrastructure.ServerException
+import com.divingduck.apiclient.models.Score
+import com.divingduck.apiclient.models.ScoreDTO
 
 object HowToUseApi {
     val apiInstance = ScoreApi("https://divingduckserver-v2.azurewebsites.net/")

@@ -9,11 +9,11 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-package io.swagger.client.apis
+package com.divingduck.apiclient.apis
 
-import io.swagger.client.models.User
+import com.divingduck.apiclient.infrastructure.*
+import com.divingduck.apiclient.models.User
 
-import io.swagger.client.infrastructure.*
 
 class UserApi(basePath: kotlin.String = "/") : ApiClient(basePath) {
 

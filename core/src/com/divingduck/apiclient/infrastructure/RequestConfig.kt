@@ -1,4 +1,6 @@
-package io.swagger.client.infrastructure
+package com.divingduck.apiclient.infrastructure
+
+import com.divingduck.apiclient.infrastructure.RequestMethod
 
 /**
  * Defines a config object for a given request.

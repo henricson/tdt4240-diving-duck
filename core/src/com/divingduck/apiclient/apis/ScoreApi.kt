@@ -9,12 +9,12 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-package io.swagger.client.apis
+package com.divingduck.apiclient.apis
 
-import io.swagger.client.models.Score
-import io.swagger.client.models.ScoreDTO
+import com.divingduck.apiclient.infrastructure.*
+import com.divingduck.apiclient.models.Score
+import com.divingduck.apiclient.models.ScoreDTO
 
-import io.swagger.client.infrastructure.*
 
 class ScoreApi(basePath: kotlin.String = "/") : ApiClient(basePath) {
 

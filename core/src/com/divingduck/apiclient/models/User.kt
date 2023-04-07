@@ -9,9 +9,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-package io.swagger.client.models
-
-import io.swagger.client.models.Score
+package com.divingduck.apiclient.models
 
 /**
  * 

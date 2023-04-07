@@ -1,5 +1,6 @@
-package io.swagger.client.infrastructure
+package com.divingduck.apiclient.infrastructure
 
+import com.divingduck.apiclient.infrastructure.*
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaTypeOrNull

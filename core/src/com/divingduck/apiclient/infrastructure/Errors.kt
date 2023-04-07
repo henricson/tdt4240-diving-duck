@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package io.swagger.client.infrastructure
+package com.divingduck.apiclient.infrastructure
 
 import java.lang.RuntimeException
 
