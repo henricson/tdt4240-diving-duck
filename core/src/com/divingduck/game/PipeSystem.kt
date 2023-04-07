@@ -21,7 +21,7 @@ class PipeSystem(private val shapeRenderer : ShapeRenderer, private val camera :
 
             // Move pipes to the left
             positionComponent.position.x -= PIPE_SPEED * deltaTime
-// Draw pipes as white rectangles
+            // Draw pipes as white rectangles
             shapeRenderer.projectionMatrix = camera.combined
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
             shapeRenderer.rect(positionComponent.position.x, positionComponent.position.y, sizeComponent.width, sizeComponent.height)

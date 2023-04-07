@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlinVersion = '1.5.20'
+    ext.kotlinVersion = '1.8.0'
 
     repositories {
         mavenLocal()
@@ -102,5 +102,9 @@ project(":core") {
         api "com.badlogicgames.ashley:ashley:$ashleyVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+        implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+        implementation "com.squareup.moshi:moshi-kotlin:1.11.0"
+        implementation "com.squareup.moshi:moshi-adapters:1.11.0"
+        implementation 'com.squareup.okhttp3:okhttp:4.1.1'
     }
 }

@@ -48,7 +48,6 @@ class DivingDuck : ApplicationAdapter() {
 
         // Add entities to the engine
         engine.addEntity(birdEntity)
-
         // Add systems to the engine
         engine.addSystem(BirdSystem(virtualHeight))
         engine.addSystem(RenderSystem(camera, batch))
@@ -66,10 +65,6 @@ class DivingDuck : ApplicationAdapter() {
         }
 
         engine.update(Gdx.graphics.deltaTime)
-
-
-
-
     }
 
     private fun spawnPipe() {
