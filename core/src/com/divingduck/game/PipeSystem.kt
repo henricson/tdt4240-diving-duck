@@ -5,8 +5,6 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.divingduck.apiclient.apis.ScoreApi
-import com.divingduck.apiclient.models.ScoreDTO
 import com.divingduck.components.PipeComponent
 import com.divingduck.components.PositionComponent
 import com.divingduck.components.SizeComponent

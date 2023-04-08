@@ -5,9 +5,9 @@ import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
-import com.divingduck.apiclient.apis.ScoreApi
-import com.divingduck.apiclient.models.ScoreDTO
 import com.divingduck.components.*
+import io.swagger.client.apis.ScoreApi
+import io.swagger.client.models.ScoreDTO
 import kotlin.math.atan2
 
 class BirdSystem(private val virtualHeight: Float) : EntitySystem() {

@@ -1,17 +1,17 @@
 package com.divingduck.game
 
-import com.divingduck.apiclient.apis.ScoreApi
-import com.divingduck.apiclient.infrastructure.ClientException
-import com.divingduck.apiclient.infrastructure.ServerException
-import com.divingduck.apiclient.models.Score
-import com.divingduck.apiclient.models.ScoreDTO
+import io.swagger.client.apis.ScoreApi
+import io.swagger.client.infrastructure.ClientException
+import io.swagger.client.infrastructure.ServerException
+import io.swagger.client.models.ScoreDTO
+import io.swagger.client.models.ScoreResponse
 
 object HowToUseApi {
     val apiInstance = ScoreApi("https://divingduckserver-v2.azurewebsites.net/")
 
     private fun getScoresExample() {
         try {
-            val result : kotlin.Array<Score> = apiInstance.apiScoreGet()
+            val result : kotlin.Array<ScoreResponse> = apiInstance.apiScoreGet()
             result.forEach { println(it) }
         } catch (e: ClientException) {
             println("4xx response calling ScoreApi#apiScoreGet")
@@ -23,7 +23,7 @@ object HowToUseApi {
     }
     private fun postScoreExample() {
         try {
-            val result : Score = apiInstance.apiScorePost(ScoreDTO(1))
+            val result : ScoreResponse = apiInstance.apiScorePost(ScoreDTO(1))
             println(result)
         } catch (e: ClientException) {
             println("4xx response calling ScoreApi#apiScoreGet")
