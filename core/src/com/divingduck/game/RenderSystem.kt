@@ -12,7 +12,6 @@ import com.divingduck.components.SizeComponent
 import com.divingduck.components.TextureComponent
 
 class RenderSystem(
-        private val camera: OrthographicCamera,
         private val batch: SpriteBatch
 ) : EntitySystem() {
     private val renderFamily = Family.all(PositionComponent::class.java, TextureComponent::class.java).get()

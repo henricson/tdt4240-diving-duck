@@ -49,7 +49,7 @@ class DivingDuck : ApplicationAdapter() {
         engine.addEntity(birdEntity)
         // Add systems to the engine
         engine.addSystem(BirdSystem(virtualHeight))
-        engine.addSystem(RenderSystem(camera, batch))
+        engine.addSystem(RenderSystem(batch))
         engine.addSystem(PipeSystem(shapeRenderer, camera, batch))
 
         setInputProcessor()

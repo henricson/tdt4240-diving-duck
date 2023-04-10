@@ -37,7 +37,6 @@ class PipeSystem(private val shapeRenderer : ShapeRenderer, private val camera :
     }
 
     fun stopMovement() {
-
         PIPE_SPEED = 0f
     }
 

@@ -9,13 +9,21 @@ import com.divingduck.components.*
 import io.swagger.client.apis.ScoreApi
 import io.swagger.client.models.ScoreDTO
 import kotlin.math.atan2
+import kotlinx.coroutines.*
+import java.util.concurrent.Executors
+
+private val apiClient = ScoreApi("https://divingduckserver-v2.azurewebsites.net/")
+
+suspend fun postApiScoreAsync(pipePositionX: Int) {
+    apiClient.apiScorePost(ScoreDTO(pipePositionX, 1))
+}
+
 
 class BirdSystem(private val virtualHeight: Float) : EntitySystem() {
     private val birdFamily = Family.all(BirdComponent::class.java, PositionComponent::class.java).get()
     private val collisionMapper = ComponentMapper.getFor(CollisionComponent::class.java)
     private val positionMapper = ComponentMapper.getFor(PositionComponent::class.java)
     private val sizeMapper = ComponentMapper.getFor(SizeComponent::class.java)
-    private val apiClient = ScoreApi("https://divingduckserver-v2.azurewebsites.net/")
     private var shouldReportScore = true;
 
     override fun update(deltaTime: Float) {
@@ -29,7 +37,8 @@ class BirdSystem(private val virtualHeight: Float) : EntitySystem() {
 
             if(positionComponent.position.y > 0) {
                 birdComponent.velocity.y +=  GRAVITY * deltaTime
-
+            }else {
+                birdComponent.velocity.y = 0f
             }
 
             if (birdComponent.isJumping) {
@@ -57,8 +66,8 @@ class BirdSystem(private val virtualHeight: Float) : EntitySystem() {
                     if (bounds.overlaps(pipeBounds)) {
                         // Collision detected
                         engine.getSystem(PipeSystem::class.java).stopMovement()
+
                         if(shouldReportScore) {
-                            apiClient.apiScorePost(ScoreDTO(pipePosition.position.x.toInt()))
                             println("Collision detected! Score is ${pipePosition.position.x}")
                             shouldReportScore = false
                         }
