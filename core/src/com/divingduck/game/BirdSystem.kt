@@ -56,9 +56,9 @@ class BirdSystem(private val virtualHeight: Float) : EntitySystem() {
 
                     if (bounds.overlaps(pipeBounds)) {
                         // Collision detected
-                        engine.getSystem(PipeSystem::class.java).stopMovement()
+                        // engine.getSystem(PipeSystem::class.java).stopMovement()
                         if(shouldReportScore) {
-                            apiClient.apiScorePost(ScoreDTO(pipePosition.position.x.toInt()))
+                            // apiClient.apiScorePost(ScoreDTO(pipePosition.position.x.toInt()))
                             println("Collision detected! Score is ${pipePosition.position.x}")
                             shouldReportScore = false
                         }

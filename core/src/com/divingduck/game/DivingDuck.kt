@@ -35,17 +35,14 @@ class DivingDuck : ApplicationAdapter() {
         // Initialize the HashMap of screens
         states["menu"] = MenuState(this)
         states["gameplay"] = GameState(this)
-
-        setState("menu")
+        println("Recreating game")
+        setState("gameplay")
     }
 
 
     override fun render() {
 
-        // Render the current screen
-        if (currentState != null) {
-            currentState!!.render(Gdx.graphics.deltaTime)
-        }
+
         engine.update(Gdx.graphics.deltaTime)
     }
 
@@ -53,6 +50,7 @@ class DivingDuck : ApplicationAdapter() {
      * Switches the game screen to the state corresponding to the provided state name.
      */
     fun setState(stateString: String) {
+        println(stateString)
         val state = states[stateString]
         if (state != null) {
             if (currentState != null) {
@@ -64,6 +62,7 @@ class DivingDuck : ApplicationAdapter() {
     }
 
     override fun dispose() {
+        println("Disposing game")
         if (currentState != null) {
             currentState!!.dispose()
         }
