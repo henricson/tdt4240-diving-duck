@@ -2,5 +2,25 @@ sourceCompatibility = 18
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 sourceSets.main.java.srcDirs = [ "src/" ]
+sourceSets.test.java.srcDirs = ["test/"]
 
 eclipse.project.name = appName + "-core"
+
+repositories {
+    google()
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    // Required -- JUnit 4 framework
+    testImplementation "junit:junit:4.12"
+    // Optional -- Robolectric environment
+    testImplementation "androidx.test:core:1.4.0"
+    // Optional -- Mockito framework
+    testImplementation "org.mockito:mockito-core:5.1.1"
+    // Optional -- mockito-kotlin
+    testImplementation "org.mockito.kotlin:mockito-kotlin:4.1.0"
+    // Optional -- Mockk framework
+    testImplementation "io.mockk:mockk:1.4.1"
+}
