@@ -8,7 +8,6 @@ import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.FitViewport
@@ -19,7 +18,6 @@ class DivingDuck : ApplicationAdapter() {
     private lateinit var camera: OrthographicCamera
     private lateinit var engine: Engine
     private lateinit var birdEntity: Entity
-    private lateinit var shapeRenderer: ShapeRenderer
     private var timeSinceLastPipe = 0f
     private lateinit var viewport: FitViewport
     private var virtualWidth = 0f
@@ -27,11 +25,12 @@ class DivingDuck : ApplicationAdapter() {
     private var pipeGap = 0f
     private var pipeHeight = 0f
     private var birdHeight = 0f
+    private lateinit var topPipeTexture: Texture
+    private lateinit var bottomPipeTexture: Texture
     override fun create() {
         batch = SpriteBatch()
         camera = OrthographicCamera()
         engine = Engine()
-        shapeRenderer = ShapeRenderer()
         virtualWidth = Gdx.graphics.width.toFloat()
         virtualHeight = Gdx.graphics.height.toFloat()
         viewport = FitViewport(virtualWidth, virtualHeight, camera)
@@ -41,6 +40,8 @@ class DivingDuck : ApplicationAdapter() {
 
         // Load textures
         val birdTexture = Texture("duck.png") // Replace with your bird image path
+        topPipeTexture = Texture("pipeUp.png")
+        bottomPipeTexture = Texture("pipeDown.png")
 
         // Create entities
         birdEntity = createBirdEntity(birdTexture)
@@ -50,7 +51,7 @@ class DivingDuck : ApplicationAdapter() {
         // Add systems to the engine
         engine.addSystem(BirdSystem(virtualHeight))
         engine.addSystem(RenderSystem(camera, batch))
-        engine.addSystem(PipeSystem(shapeRenderer, camera, batch))
+        engine.addSystem(PipeSystem(camera, batch))
 
         setInputProcessor()
     }
@@ -70,20 +71,22 @@ class DivingDuck : ApplicationAdapter() {
         val posY = MathUtils.random(virtualHeight * 0.1f, virtualHeight * 0.6f)
 
         // Create top pipe
-        val topPipeEntity = createPipeEntity(posY + pipeGap)
+        val topPipeEntity = createPipeEntity(posY + pipeGap, topPipeTexture)
         engine.addEntity(topPipeEntity)
 
         // Create bottom pipe
-        val bottomPipeEntity = createPipeEntity(posY - pipeHeight - pipeGap)
+        val bottomPipeEntity = createPipeEntity(posY - pipeHeight - pipeGap, bottomPipeTexture)
         engine.addEntity(bottomPipeEntity)
     }
 
-    private fun createPipeEntity(y: Float): Entity {
+
+    private fun createPipeEntity(y: Float, pipeTexture: Texture): Entity {
         val pipeEntity = Entity()
         pipeEntity.add(PositionComponent(Vector2(virtualWidth, y)))
         pipeEntity.add(PipeComponent())
         pipeEntity.add(SizeComponent(PIPE_WIDTH, PIPE_HEIGHT))
         pipeEntity.add(CollisionComponent())
+        pipeEntity.add(TextureComponent(pipeTexture)) // Add texture component
         return pipeEntity
     }
 
