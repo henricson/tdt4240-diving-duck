@@ -43,12 +43,23 @@ class DivingDuck : ApplicationAdapter() {
         topPipeTexture = Texture("pipeUp.png")
         bottomPipeTexture = Texture("pipeDown.png")
 
+        val backgroundTexture = Texture("background.png") // Replace with your background image path
+
+        // Create background entities
+        val backgroundEntity1 = createBackgroundEntity(0f, backgroundTexture, 30f)
+        val backgroundEntity2 = createBackgroundEntity(virtualWidth, backgroundTexture, 30f)
+
+        // Add background entities to the engine
+        engine.addEntity(backgroundEntity1)
+        engine.addEntity(backgroundEntity2)
+
         // Create entities
         birdEntity = createBirdEntity(birdTexture)
 
         // Add entities to the engine
         engine.addEntity(birdEntity)
         // Add systems to the engine
+        engine.addSystem(ParallaxSystem(camera, batch))
         engine.addSystem(BirdSystem(virtualHeight))
         engine.addSystem(RenderSystem(camera, batch))
         engine.addSystem(PipeSystem(camera, batch))
@@ -121,5 +132,14 @@ class DivingDuck : ApplicationAdapter() {
         birdEntity.add(BirdComponent())
         return birdEntity
     }
+
+    private fun createBackgroundEntity(x: Float, texture: Texture, speed: Float): Entity {
+        val backgroundEntity = Entity()
+        backgroundEntity.add(PositionComponent(Vector2(x, 0f))) // Set x position to the passed value
+        backgroundEntity.add(SizeComponent(virtualWidth, virtualHeight))
+        backgroundEntity.add(ParallaxComponent(texture, speed))
+        return backgroundEntity
+    }
+
 
 }
