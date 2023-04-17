@@ -82,8 +82,7 @@ class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
                         if(shouldReportScore) {
 
                             println("Collision detected! Score is ${totalTimePassed}")
-                            //TODO Should accept float instead
-                            apiClient.apiScorePost(ScoreDTO(totalTimePassed.toInt(), 1))
+                            apiClient.apiScorePost(ScoreDTO(totalTimePassed, 1))
                             shouldReportScore = false
                         }
 

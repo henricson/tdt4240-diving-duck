@@ -28,7 +28,7 @@ import com.squareup.moshi.Json
  * 
  *
  * @param id 
- * @param scoreXPos 
+ * @param timeElapsed 
  * @param userId 
  * @param user 
  */
@@ -38,8 +38,8 @@ data class Score (
     @Json(name = "id")
     val id: kotlin.Int,
 
-    @Json(name = "scoreXPos")
-    val scoreXPos: kotlin.Int? = null,
+    @Json(name = "timeElapsed")
+    val timeElapsed: kotlin.Float? = null,
 
     @Json(name = "userId")
     val userId: kotlin.Int? = null,

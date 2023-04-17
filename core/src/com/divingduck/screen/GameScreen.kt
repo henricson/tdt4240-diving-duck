@@ -7,6 +7,7 @@ import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
@@ -15,6 +16,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.FitViewport
+import com.divingduck.client.apis.ScoreApi
 import com.divingduck.components.BirdComponent
 import com.divingduck.components.CollisionComponent
 import com.divingduck.components.ParallaxComponent
@@ -49,9 +51,13 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
     private lateinit var bottomPipeTexture: Texture
     private var totalTimePassed = 0f;
     private lateinit var calculationHelpers: TombstoneHelpers;
+    private lateinit var music :Music;
+    private lateinit var ambient :Music;
+    private val scoreApi = ScoreApi("https://divingduckserver-v2.azurewebsites.net/")
 
     override fun show() {
-        calculationHelpers = TombstoneHelpers(mutableListOf(7.0747323f, 3.0f))
+        val previousTimesElapsed = scoreApi.apiScoreGet().map { it.timeElapsed }.filterIsInstance<Float>()
+        calculationHelpers = TombstoneHelpers(previousTimesElapsed.toMutableList())
         calculationHelpers.addListener(this);
         batch = SpriteBatch()
         camera = OrthographicCamera()
@@ -90,7 +96,14 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
         engine.addSystem(UpdateSystem(virtualHeight))
 
         engine.addSystem(RenderSystem(camera, batch))
-        setInputProcessor()
+        setInputProcessor();
+        music = Gdx.audio.newMusic(Gdx.files.internal("sounds/lofistudy.mp3"));
+        ambient = Gdx.audio.newMusic(Gdx.files.internal("sounds/underwater.mp3"));
+
+        // Start playing the music
+        music.play();
+        music.volume = 0.2f;
+        ambient.play()
     }
 
     override fun render(delta: Float) {
@@ -135,19 +148,16 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
     }
 
     override fun pause() {
-        TODO("Not yet implemented")
     }
 
     override fun resume() {
-        TODO("Not yet implemented")
     }
 
     override fun hide() {
-        TODO("Not yet implemented")
     }
 
     override fun dispose() {
-        TODO("Not yet implemented")
+        music.stop();
     }
 
     companion object {
