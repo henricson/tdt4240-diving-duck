@@ -12,8 +12,52 @@ buildscript {
         classpath 'com.android.tools.build:gradle:7.4.2'
         classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.3.19'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-
+        classpath 'org.openapitools:openapi-generator-gradle-plugin:5.3.0'
     }
+}
+apply plugin: 'org.openapi.generator'
+
+
+task downloadSwaggerSpec {
+    doLast {
+        def url = "http://divingduckserver-v2.azurewebsites.net/swagger/v1/swagger.json"
+        def file = "$buildDir/swagger-spec.json"
+
+        new File(file).withOutputStream { out ->
+            out << new URL(url).openStream()
+        }
+    }
+}
+
+task generateKotlinClient(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
+    group = "build"
+    description = "Generate Kotlin client library from Swagger/OpenAPI specification"
+
+    generatorName = "kotlin"
+    inputSpec = file("$buildDir/swagger-spec.json").absolutePath
+    outputDir = "$buildDir/generated"
+    configOptions = [
+            "packageName"          : "com.divingduck.client",
+            "apiPackage"           : "com.divingduck.client.api",
+            "modelPackage"         : "com.divingduck.client.model",
+            "invokerPackage"       : "com.divingduck.client.invoker",
+            "groupId"              : "com.divingduck.client",
+            "artifactId"           : "divingduck-kotlin-client",
+            "artifactVersion"      : "1.0.0",
+            "library"              : "ktor",
+    ]
+}
+
+task copyGeneratedFilesWithoutPackageStructure(type: Copy) {
+    group = "build"
+    description = "Copy generated Kotlin client files without package structure to the subproject"
+
+    dependsOn generateKotlinClient
+
+    from("$buildDir/generated/src/main/kotlin/com/divingduck/client") {
+        include '**/*.kt'
+    }
+    into project(":core").file("src/com/divingduck/client")
 }
 
 allprojects {

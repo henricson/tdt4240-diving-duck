@@ -3,24 +3,25 @@ package com.divingduck.game
 import com.badlogic.ashley.core.ComponentMapper
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.Family
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
+import com.divingduck.client.apis.ScoreApi
+import com.divingduck.client.models.ScoreDTO
 import com.divingduck.components.*
-import io.swagger.client.apis.ScoreApi
-import io.swagger.client.models.ScoreDTO
 import kotlin.math.atan2
 
 class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
     private val birdFamily = Family.all(BirdComponent::class.java).get()
+    private val tombstoneFamily = Family.all(TombstoneComponent::class.java).get()
     private val pipeFamily = Family.all(PipeComponent::class.java).get()
     private val velocityFamily = Family.all(VelocityComponent::class.java, PositionComponent::class.java).get()
 
     private val collisionMapper = ComponentMapper.getFor(CollisionComponent::class.java)
     private val positionMapper = ComponentMapper.getFor(PositionComponent::class.java)
     private val sizeMapper = ComponentMapper.getFor(SizeComponent::class.java)
-    //private val apiClient = ScoreApi("https://divingduckserver-v2.azurewebsites.net/")
+    private val apiClient = ScoreApi("https://divingduckserver-v2.azurewebsites.net/")
     private var shouldReportScore = true;
+    private var totalTimePassed = 0f;
 
     override fun update(deltaTime: Float) {
         updateState(deltaTime);
@@ -30,6 +31,13 @@ class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
         updateBird(deltaTime)
         updatePipes(deltaTime)
         updatePosition(deltaTime)
+    }
+
+    private fun updateTombstone(deltaTime: Float) {
+        val tombstoneEntities = engine.getEntitiesFor(tombstoneFamily)
+        for (birdEntity in tombstoneEntities) {
+
+        }
     }
 
     private fun updateBird(deltaTime: Float) {
@@ -71,15 +79,13 @@ class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
                     val pipeBounds = Rectangle(pipePosition.position.x, pipePosition.position.y, pipeSize.width, pipeSize.height)
 
                     if (bounds.overlaps(pipeBounds)) {
-                        // TODO
-                        throw Exception("You loose!")
-                        // Collision detected
-                        //engine.getSystem(PipeSystem::class.java).stopMovement()
-                        //if(shouldReportScore) {
-                            //apiClient.apiScorePost(ScoreDTO(pipePosition.position.x.toInt()))
-                            //println("Collision detected! Score is ${pipePosition.position.x}")
-                            //shouldReportScore = false
-                        //}
+                        if(shouldReportScore) {
+
+                            println("Collision detected! Score is ${totalTimePassed}")
+                            //TODO Should accept float instead
+                            apiClient.apiScorePost(ScoreDTO(totalTimePassed.toInt(), 1))
+                            shouldReportScore = false
+                        }
 
                     }
                 }
@@ -88,6 +94,7 @@ class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
     }
 
     private fun updatePipes(deltaTime: Float) {
+        totalTimePassed += deltaTime;
         // Update pipe state
         val pipeEntities = engine.getEntitiesFor(pipeFamily)
         for (pipeEntity in pipeEntities) {
@@ -108,6 +115,7 @@ class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
         for (velocityEntity in velocityEntities) {
             val positionComponent = velocityEntity.getComponent(PositionComponent::class.java)
             val velocityComponent = velocityEntity.getComponent(VelocityComponent::class.java)
+
 
             positionComponent.position.add(velocityComponent.velocity.cpy().scl(deltaTime))
         }

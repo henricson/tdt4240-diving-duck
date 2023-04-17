@@ -17,22 +17,26 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.divingduck.components.BirdComponent
 import com.divingduck.components.CollisionComponent
+import com.divingduck.components.ParallaxComponent
 import com.divingduck.components.PipeComponent
 import com.divingduck.components.PositionComponent
 import com.divingduck.components.RotationComponent
 import com.divingduck.components.SizeComponent
 import com.divingduck.components.TextureComponent
+import com.divingduck.components.TombstoneComponent
 import com.divingduck.components.VelocityComponent
 import com.divingduck.game.DivingDuck
+import com.divingduck.game.ParallaxSystem
 import com.divingduck.game.RenderSystem
 import com.divingduck.game.UpdateSystem
+import com.divingduck.helpers.TombstoneHelpers
+import com.divingduck.helpers.TombstoneListener
 
-class GameScreen(game: Game) : Screen {
+class GameScreen(game: Game) : Screen, TombstoneListener {
     private lateinit var batch: SpriteBatch
     private lateinit var camera: OrthographicCamera
     private lateinit var engine: Engine
     private lateinit var birdEntity: Entity
-    private lateinit var shapeRenderer: ShapeRenderer
     private var timeSinceLastPipe = 0f
     private lateinit var viewport: FitViewport
     private var virtualWidth = 0f
@@ -40,21 +44,39 @@ class GameScreen(game: Game) : Screen {
     private var pipeGap = 0f
     private var pipeHeight = 0f
     private var birdHeight = 0f
+    private lateinit var topPipeTexture: Texture
+    private lateinit var birdTexture: Texture
+    private lateinit var bottomPipeTexture: Texture
+    private var totalTimePassed = 0f;
+    private lateinit var calculationHelpers: TombstoneHelpers;
 
     override fun show() {
+        calculationHelpers = TombstoneHelpers(mutableListOf(7.0747323f, 3.0f))
+        calculationHelpers.addListener(this);
         batch = SpriteBatch()
         camera = OrthographicCamera()
         engine = Engine()
-        shapeRenderer = ShapeRenderer()
         virtualWidth = Gdx.graphics.width.toFloat()
         virtualHeight = Gdx.graphics.height.toFloat()
         viewport = FitViewport(virtualWidth, virtualHeight, camera)
-        pipeGap = virtualHeight * 0.2f
+        pipeGap = virtualHeight * 0.1f
         pipeHeight = virtualHeight * 0.9f
-        birdHeight = pipeGap * 0.3F
+        birdHeight = pipeGap * 0.5f
 
         // Load textures
-        val birdTexture = Texture("duck.png") // Replace with your bird image path
+        birdTexture = Texture("duck.png") // Replace with your bird image path
+        topPipeTexture = Texture("pipeUp.png")
+        bottomPipeTexture = Texture("pipeDown.png")
+
+        val backgroundTexture = Texture("background.png") // Replace with your background image path
+
+        // Create background entities
+        val backgroundEntity1 = createBackgroundEntity(0f, backgroundTexture, 150f)
+        val backgroundEntity2 = createBackgroundEntity(virtualWidth, backgroundTexture, 150f)
+
+        // Add background entities to the engine
+        engine.addEntity(backgroundEntity1)
+        engine.addEntity(backgroundEntity2)
 
         // Create entities
         birdEntity = createBirdEntity(birdTexture)
@@ -63,18 +85,23 @@ class GameScreen(game: Game) : Screen {
         engine.addEntity(birdEntity)
 
         // Add systems to the engine
+        engine.addSystem(ParallaxSystem(camera, batch))
+        engine.addSystem(RenderSystem(camera, batch))
         engine.addSystem(UpdateSystem(virtualHeight))
 
-        engine.addSystem(RenderSystem(shapeRenderer, camera, batch))
+        engine.addSystem(RenderSystem(camera, batch))
         setInputProcessor()
     }
 
     override fun render(delta: Float) {
         timeSinceLastPipe += Gdx.graphics.deltaTime
+        totalTimePassed += Gdx.graphics.deltaTime
         if (timeSinceLastPipe > DivingDuck.PIPE_SPAWN_TIME) {
             spawnPipe()
             timeSinceLastPipe = 0f
         }
+
+        calculationHelpers.getInitialXPositionsInSlidingWindow(150f, totalTimePassed)
 
         engine.update(Gdx.graphics.deltaTime)
     }
@@ -83,26 +110,50 @@ class GameScreen(game: Game) : Screen {
         val posY = MathUtils.random(virtualHeight * 0.1f, virtualHeight * 0.6f)
 
         // Create top pipe
-        val topPipeEntity = createPipeEntity(posY + pipeGap)
+        val topPipeEntity = createPipeEntity(posY + pipeGap, topPipeTexture)
         engine.addEntity(topPipeEntity)
 
         // Create bottom pipe
-        val bottomPipeEntity = createPipeEntity(posY - pipeHeight)
+        val bottomPipeEntity = createPipeEntity(posY - pipeHeight - pipeGap, bottomPipeTexture)
         engine.addEntity(bottomPipeEntity)
     }
 
-    private fun createPipeEntity(y: Float): Entity {
+
+    private fun createPipeEntity(y: Float, pipeTexture: Texture): Entity {
         val pipeEntity = Entity()
         pipeEntity.add(PositionComponent(Vector2(virtualWidth, y)))
         pipeEntity.add(PipeComponent())
-        pipeEntity.add(SizeComponent(DivingDuck.PIPE_WIDTH, DivingDuck.PIPE_HEIGHT))
+        pipeEntity.add(SizeComponent(PIPE_WIDTH, PIPE_HEIGHT))
         pipeEntity.add(CollisionComponent())
+        pipeEntity.add(TextureComponent(pipeTexture)) // Add texture component
         pipeEntity.add(VelocityComponent(Vector2(-150F, 0F)))
         return pipeEntity
     }
 
     override fun resize(width: Int, height: Int) {
         viewport.update(width, height, true)
+    }
+
+    override fun pause() {
+        TODO("Not yet implemented")
+    }
+
+    override fun resume() {
+        TODO("Not yet implemented")
+    }
+
+    override fun hide() {
+        TODO("Not yet implemented")
+    }
+
+    override fun dispose() {
+        TODO("Not yet implemented")
+    }
+
+    companion object {
+        private const val PIPE_WIDTH = 50f
+        private const val PIPE_HEIGHT = 400f
+        private const val PIPE_SPAWN_TIME = 1.5f
     }
 
     private fun setInputProcessor() {
@@ -129,27 +180,28 @@ class GameScreen(game: Game) : Screen {
         return birdEntity
     }
 
-
-    override fun pause() {
-        TODO("Not yet implemented")
+    private fun createTombstoneEntity(startXPosition : Float) : Entity {
+        val tombStoneEntity = Entity();
+        tombStoneEntity.add(PositionComponent(Vector2(startXPosition, 0f)))
+        tombStoneEntity.add(VelocityComponent(Vector2(-150F, 0F)))
+        val birdWidth = birdHeight * birdTexture.width / birdTexture.height.toFloat()
+        tombStoneEntity.add(SizeComponent(birdWidth, birdHeight))
+        tombStoneEntity.add(TextureComponent(birdTexture))
+        tombStoneEntity.add(TombstoneComponent())
+        return tombStoneEntity;
     }
 
-    override fun resume() {
-        TODO("Not yet implemented")
+    private fun createBackgroundEntity(x: Float, texture: Texture, speed: Float): Entity {
+        val backgroundEntity = Entity()
+        backgroundEntity.add(PositionComponent(Vector2(x, 0f))) // Set x position to the passed value
+        backgroundEntity.add(SizeComponent(virtualWidth, virtualHeight))
+        backgroundEntity.add(ParallaxComponent(texture, speed))
+        return backgroundEntity
     }
 
-    override fun hide() {
-        TODO("Not yet implemented")
-    }
-
-    override fun dispose() {
-        TODO("Not yet implemented")
-    }
-
-    companion object {
-        private const val PIPE_WIDTH = 50f
-        private const val PIPE_HEIGHT = 400f
-        private const val PIPE_SPAWN_TIME = 1.5f
+    override fun onSpawn(initialXPos: Float) {
+        println("spawning tombstone at x pos " + initialXPos)
+        engine.addEntity(createTombstoneEntity(initialXPos))
     }
 
 
