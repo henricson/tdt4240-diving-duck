@@ -12,7 +12,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.divingduck.components.*
-import com.divingduck.helpers.CalculationHelpers
+import com.divingduck.helpers.TombstoneHelpers
 import com.divingduck.helpers.TombstoneListener
 
 class DivingDuck : ApplicationAdapter(), TombstoneListener {
@@ -31,9 +31,9 @@ class DivingDuck : ApplicationAdapter(), TombstoneListener {
     private lateinit var birdTexture: Texture
     private lateinit var bottomPipeTexture: Texture
     private var totalTimePassed = 0f;
-    private lateinit var calculationHelpers: CalculationHelpers;
+    private lateinit var calculationHelpers: TombstoneHelpers;
     override fun create() {
-        calculationHelpers = CalculationHelpers(mutableListOf(7.0747323f, 3.0f))
+        calculationHelpers = TombstoneHelpers(mutableListOf(7.0747323f, 3.0f))
         calculationHelpers.addListener(this);
         batch = SpriteBatch()
         camera = OrthographicCamera()
@@ -83,7 +83,7 @@ class DivingDuck : ApplicationAdapter(), TombstoneListener {
             timeSinceLastPipe = 0f
         }
 
-        calculationHelpers.getXPositionsInSlidingWindow(150f, totalTimePassed)
+        calculationHelpers.getInitialXPositionsInSlidingWindow(150f, totalTimePassed)
 
         engine.update(Gdx.graphics.deltaTime)
     }

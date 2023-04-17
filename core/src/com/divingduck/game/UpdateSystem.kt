@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
 import com.divingduck.components.*
-import com.divingduck.helpers.CalculationHelpers
+import com.divingduck.helpers.TombstoneHelpers
 import io.swagger.client.apis.ScoreApi
 import io.swagger.client.models.ScoreDTO
 import kotlin.math.atan2

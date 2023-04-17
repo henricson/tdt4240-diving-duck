@@ -6,14 +6,14 @@ interface TombstoneListener {
     fun onSpawn(initialXPos: Float)
 }
 
-class CalculationHelpers(val elapsedTimes: MutableList<Float>) {
+class TombstoneHelpers(val elapsedTimes: MutableList<Float>) {
     private val listeners = mutableListOf<TombstoneListener>()
 
     fun addListener(listener: TombstoneListener) {
         listeners.add(listener)
     }
 
-    fun getXPositionsInSlidingWindow(
+    fun getInitialXPositionsInSlidingWindow(
             velocityX: Float,
             currentElapsedTime: Float
     ): List<Float> {
