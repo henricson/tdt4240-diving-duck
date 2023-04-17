@@ -46,8 +46,8 @@ class DivingDuck : ApplicationAdapter() {
         val backgroundTexture = Texture("background.png") // Replace with your background image path
 
         // Create background entities
-        val backgroundEntity1 = createBackgroundEntity(0f, backgroundTexture, 30f)
-        val backgroundEntity2 = createBackgroundEntity(virtualWidth, backgroundTexture, 30f)
+        val backgroundEntity1 = createBackgroundEntity(0f, backgroundTexture, 150f)
+        val backgroundEntity2 = createBackgroundEntity(virtualWidth, backgroundTexture, 150f)
 
         // Add background entities to the engine
         engine.addEntity(backgroundEntity1)
