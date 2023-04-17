@@ -7,12 +7,14 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
 import com.divingduck.components.*
+import com.divingduck.helpers.CalculationHelpers
 import io.swagger.client.apis.ScoreApi
 import io.swagger.client.models.ScoreDTO
 import kotlin.math.atan2
 
 class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
     private val birdFamily = Family.all(BirdComponent::class.java).get()
+    private val tombstoneFamily = Family.all(TombstoneComponent::class.java).get()
     private val pipeFamily = Family.all(PipeComponent::class.java).get()
     private val velocityFamily = Family.all(VelocityComponent::class.java, PositionComponent::class.java).get()
 
@@ -31,6 +33,13 @@ class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
         updateBird(deltaTime)
         updatePipes(deltaTime)
         updatePosition(deltaTime)
+    }
+
+    private fun updateTombstone(deltaTime: Float) {
+        val tombstoneEntities = engine.getEntitiesFor(tombstoneFamily)
+        for (birdEntity in tombstoneEntities) {
+
+        }
     }
 
     private fun updateBird(deltaTime: Float) {
@@ -73,8 +82,8 @@ class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
 
                     if (bounds.overlaps(pipeBounds)) {
                         if(shouldReportScore) {
-                            println("Collision detected! Score is ${totalTimePassed}")
 
+                            println("Collision detected! Score is ${totalTimePassed}")
                             apiClient.apiScorePost(ScoreDTO(pipePosition.position.x.toInt()))
                             shouldReportScore = false
                         }
@@ -107,6 +116,7 @@ class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
         for (velocityEntity in velocityEntities) {
             val positionComponent = velocityEntity.getComponent(PositionComponent::class.java)
             val velocityComponent = velocityEntity.getComponent(VelocityComponent::class.java)
+
 
             positionComponent.position.add(velocityComponent.velocity.cpy().scl(deltaTime))
         }

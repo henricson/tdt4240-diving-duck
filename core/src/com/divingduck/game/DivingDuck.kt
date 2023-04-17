@@ -12,8 +12,10 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.divingduck.components.*
+import com.divingduck.helpers.CalculationHelpers
+import com.divingduck.helpers.TombstoneListener
 
-class DivingDuck : ApplicationAdapter() {
+class DivingDuck : ApplicationAdapter(), TombstoneListener {
     private lateinit var batch: SpriteBatch
     private lateinit var camera: OrthographicCamera
     private lateinit var engine: Engine
@@ -26,8 +28,13 @@ class DivingDuck : ApplicationAdapter() {
     private var pipeHeight = 0f
     private var birdHeight = 0f
     private lateinit var topPipeTexture: Texture
+    private lateinit var birdTexture: Texture
     private lateinit var bottomPipeTexture: Texture
+    private var totalTimePassed = 0f;
+    private lateinit var calculationHelpers: CalculationHelpers;
     override fun create() {
+        calculationHelpers = CalculationHelpers(mutableListOf(7.0747323f, 3.0f))
+        calculationHelpers.addListener(this);
         batch = SpriteBatch()
         camera = OrthographicCamera()
         engine = Engine()
@@ -39,7 +46,7 @@ class DivingDuck : ApplicationAdapter() {
         birdHeight = pipeGap * 0.5f
 
         // Load textures
-        val birdTexture = Texture("duck.png") // Replace with your bird image path
+        birdTexture = Texture("duck.png") // Replace with your bird image path
         topPipeTexture = Texture("pipeUp.png")
         bottomPipeTexture = Texture("pipeDown.png")
 
@@ -70,10 +77,13 @@ class DivingDuck : ApplicationAdapter() {
 
     override fun render() {
         timeSinceLastPipe += Gdx.graphics.deltaTime
+        totalTimePassed += Gdx.graphics.deltaTime
         if (timeSinceLastPipe > PIPE_SPAWN_TIME) {
             spawnPipe()
             timeSinceLastPipe = 0f
         }
+
+        calculationHelpers.getXPositionsInSlidingWindow(150f, totalTimePassed)
 
         engine.update(Gdx.graphics.deltaTime)
     }
@@ -136,12 +146,28 @@ class DivingDuck : ApplicationAdapter() {
         return birdEntity
     }
 
+    private fun createTombstoneEntity(startXPosition : Float) : Entity {
+        val tombStoneEntity = Entity();
+        tombStoneEntity.add(PositionComponent(Vector2(startXPosition, 0f)))
+        tombStoneEntity.add(VelocityComponent(Vector2(-150F, 0F)))
+        val birdWidth = birdHeight * birdTexture.width / birdTexture.height.toFloat()
+        tombStoneEntity.add(SizeComponent(birdWidth, birdHeight))
+        tombStoneEntity.add(TextureComponent(birdTexture))
+        tombStoneEntity.add(TombstoneComponent())
+        return tombStoneEntity;
+    }
+
     private fun createBackgroundEntity(x: Float, texture: Texture, speed: Float): Entity {
         val backgroundEntity = Entity()
         backgroundEntity.add(PositionComponent(Vector2(x, 0f))) // Set x position to the passed value
         backgroundEntity.add(SizeComponent(virtualWidth, virtualHeight))
         backgroundEntity.add(ParallaxComponent(texture, speed))
         return backgroundEntity
+    }
+
+    override fun onSpawn(initialXPos: Float) {
+        println("spawning tombstone at x pos " + initialXPos)
+        engine.addEntity(createTombstoneEntity(initialXPos))
     }
 
 
