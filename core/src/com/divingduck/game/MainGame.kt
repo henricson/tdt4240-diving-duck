@@ -3,6 +3,7 @@ package com.badlogic.drop
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.divingduck.screen.GameScreen
 import com.divingduck.screen.MainMenuScreen
 
 class MainGame : Game() {

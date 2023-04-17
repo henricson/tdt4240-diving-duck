@@ -11,7 +11,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
 
-class MainMenuScreen(game: MainGame) : Screen {
+
+enum class Screens {
+    MainMenu, GamePlaying
+}
+interface SceneChange {
+    fun onScreenChange(newScreen : Screens)
+}
+
+class MainMenuScreen(var game: MainGame) : Screen {
     private var camera : OrthographicCamera = OrthographicCamera();
     private val stage = Stage()
     private val skin = Skin(Gdx.files.internal("default/skin/uiskin.json"))
@@ -30,12 +38,7 @@ class MainMenuScreen(game: MainGame) : Screen {
             setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height * 0.5f, Align.center)
             addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                    val username = getStoredUsername()
-                    if (username == null || username.isEmpty()) {
-                        showUsernameDialog()
-                    } else {
-                        startGame(username)
-                    }
+                    game.setScreen(GameScreen(game));
                 }
             })
         }
@@ -119,6 +122,6 @@ class MainMenuScreen(game: MainGame) : Screen {
     }
 
     override fun dispose() {
-
+        stage.dispose()
     }
 }

@@ -27,6 +27,13 @@ class DivingDuck : ApplicationAdapter() {
     private var pipeGap = 0f
     private var pipeHeight = 0f
     private var birdHeight = 0f
+
+    companion object {
+        const val PIPE_WIDTH = 50f
+        const val PIPE_HEIGHT = 400f
+        const val PIPE_SPAWN_TIME = 1.5f
+    }
+
     override fun create() {
         batch = SpriteBatch()
         camera = OrthographicCamera()
@@ -35,9 +42,9 @@ class DivingDuck : ApplicationAdapter() {
         virtualWidth = Gdx.graphics.width.toFloat()
         virtualHeight = Gdx.graphics.height.toFloat()
         viewport = FitViewport(virtualWidth, virtualHeight, camera)
-        pipeGap = virtualHeight * 0.1f
+        pipeGap = virtualHeight * 0.2f
         pipeHeight = virtualHeight * 0.9f
-        birdHeight = pipeGap * 0.5f
+        birdHeight = pipeGap * 0.3F
 
         // Load textures
         val birdTexture = Texture("duck.png") // Replace with your bird image path
@@ -47,14 +54,13 @@ class DivingDuck : ApplicationAdapter() {
 
         // Add entities to the engine
         engine.addEntity(birdEntity)
-        // Add systems to the engine
-        engine.addSystem(BirdSystem(virtualHeight))
-        engine.addSystem(RenderSystem(batch))
-        engine.addSystem(PipeSystem(shapeRenderer, camera, batch))
 
+        // Add systems to the engine
+        engine.addSystem(UpdateSystem(virtualHeight))
+
+        engine.addSystem(RenderSystem(shapeRenderer, camera, batch))
         setInputProcessor()
     }
-
 
     override fun render() {
         timeSinceLastPipe += Gdx.graphics.deltaTime
@@ -74,7 +80,7 @@ class DivingDuck : ApplicationAdapter() {
         engine.addEntity(topPipeEntity)
 
         // Create bottom pipe
-        val bottomPipeEntity = createPipeEntity(posY - pipeHeight - pipeGap)
+        val bottomPipeEntity = createPipeEntity(posY - pipeHeight)
         engine.addEntity(bottomPipeEntity)
     }
 
@@ -84,17 +90,12 @@ class DivingDuck : ApplicationAdapter() {
         pipeEntity.add(PipeComponent())
         pipeEntity.add(SizeComponent(PIPE_WIDTH, PIPE_HEIGHT))
         pipeEntity.add(CollisionComponent())
+        pipeEntity.add(VelocityComponent(Vector2(-150F, 0F)))
         return pipeEntity
     }
 
     override fun resize(width: Int, height: Int) {
         viewport.update(width, height, true)
-    }
-
-    companion object {
-        private const val PIPE_WIDTH = 50f
-        private const val PIPE_HEIGHT = 400f
-        private const val PIPE_SPAWN_TIME = 1.5f
     }
 
     private fun setInputProcessor() {
@@ -113,9 +114,11 @@ class DivingDuck : ApplicationAdapter() {
         birdEntity.add(RotationComponent())
         birdEntity.add(CollisionComponent())
         birdEntity.add(TextureComponent(birdTexture))
+        birdEntity.add(VelocityComponent())
         val birdWidth = birdHeight * birdTexture.width / birdTexture.height.toFloat()
         birdEntity.add(SizeComponent(birdWidth, birdHeight))
         birdEntity.add(BirdComponent())
+
         return birdEntity
     }
 
