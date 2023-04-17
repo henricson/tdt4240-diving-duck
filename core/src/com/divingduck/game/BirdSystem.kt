@@ -26,6 +26,7 @@ class BirdSystem(private val virtualHeight: Float) : EntitySystem() {
     private val sizeMapper = ComponentMapper.getFor(SizeComponent::class.java)
     private var shouldReportScore = true;
 
+
     override fun update(deltaTime: Float) {
         val birdEntities = engine.getEntitiesFor(birdFamily)
 
@@ -35,18 +36,7 @@ class BirdSystem(private val virtualHeight: Float) : EntitySystem() {
             val sizeComponent = birdEntity.getComponent(SizeComponent::class.java)
             val rotationComponent = birdEntity.getComponent(RotationComponent::class.java)
 
-            if(positionComponent.position.y > 0) {
-                birdComponent.velocity.y +=  GRAVITY * deltaTime
-            }else {
-                birdComponent.velocity.y = 0f
-            }
 
-            if (birdComponent.isJumping) {
-                birdComponent.velocity.y = JUMP_VELOCITY
-                birdComponent.isJumping = false
-            }
-            positionComponent.position.y = MathUtils.clamp(positionComponent.position.y, 0f, virtualHeight - sizeComponent.height)
-            positionComponent.position.add(birdComponent.velocity.cpy().scl(deltaTime))
 
             // TODO: Når hastighet er integrert med posisjon burde vi ha inn at rotasjonen er beregnet av
             //  fuggelens hastighet i både x og y retning (altså ikke en 200F under)

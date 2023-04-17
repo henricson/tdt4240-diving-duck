@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.Align
 class MainMenuScreen(game: MainGame) : Screen {
     private var camera : OrthographicCamera = OrthographicCamera();
     private val stage = Stage()
-    private val skin = Skin()
+    private val skin = Skin(Gdx.files.internal("default/skin/uiskin.json"))
     private val usernameInput = TextField("", skin)
 
     init {
@@ -22,7 +22,7 @@ class MainMenuScreen(game: MainGame) : Screen {
         Gdx.input.inputProcessor = stage
 
         // Create UI elements
-        val titleLabel = Label("My Game", skin, "title").apply {
+        val titleLabel = Label("My Game", skin, "default").apply {
             setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height * 0.75f, Align.center)
         }
 
