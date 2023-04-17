@@ -19,8 +19,9 @@ class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
     private val collisionMapper = ComponentMapper.getFor(CollisionComponent::class.java)
     private val positionMapper = ComponentMapper.getFor(PositionComponent::class.java)
     private val sizeMapper = ComponentMapper.getFor(SizeComponent::class.java)
-    //private val apiClient = ScoreApi("https://divingduckserver-v2.azurewebsites.net/")
+    private val apiClient = ScoreApi("https://divingduckserver-v2.azurewebsites.net/")
     private var shouldReportScore = true;
+    private var totalTimePassed = 0f;
 
     override fun update(deltaTime: Float) {
         updateState(deltaTime);
@@ -71,15 +72,12 @@ class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
                     val pipeBounds = Rectangle(pipePosition.position.x, pipePosition.position.y, pipeSize.width, pipeSize.height)
 
                     if (bounds.overlaps(pipeBounds)) {
-                        // TODO
-                        throw Exception("You loose!")
-                        // Collision detected
-                        //engine.getSystem(PipeSystem::class.java).stopMovement()
-                        //if(shouldReportScore) {
-                            //apiClient.apiScorePost(ScoreDTO(pipePosition.position.x.toInt()))
-                            //println("Collision detected! Score is ${pipePosition.position.x}")
-                            //shouldReportScore = false
-                        //}
+                        if(shouldReportScore) {
+                            println("Collision detected! Score is ${totalTimePassed}")
+
+                            apiClient.apiScorePost(ScoreDTO(pipePosition.position.x.toInt()))
+                            shouldReportScore = false
+                        }
 
                     }
                 }
@@ -88,6 +86,7 @@ class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
     }
 
     private fun updatePipes(deltaTime: Float) {
+        totalTimePassed += deltaTime;
         // Update pipe state
         val pipeEntities = engine.getEntitiesFor(pipeFamily)
         for (pipeEntity in pipeEntities) {
