@@ -7,6 +7,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.audio.Music
+import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
@@ -29,6 +30,7 @@ import com.divingduck.game.RenderSystem
 import com.divingduck.game.UpdateSystem
 import com.divingduck.helpers.TombstoneHelpers
 import com.divingduck.helpers.TombstoneListener
+import kotlin.properties.Delegates
 
 class GameScreen(game: Game) : Screen, TombstoneListener {
     private lateinit var batch: SpriteBatch
@@ -41,15 +43,18 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
     private var virtualHeight = 0f
     private var pipeGap = 0f
     private var pipeHeight = 0f
+    private var pipeWidth = 0f
     private var birdHeight = 0f
+
     private lateinit var topPipeTexture: Texture
     private lateinit var birdTexture: Texture
     private lateinit var bottomPipeTexture: Texture
     private var totalTimePassed = 0f;
     private lateinit var calculationHelpers: TombstoneHelpers;
-    private lateinit var music :Music;
-    private lateinit var ambient :Music;
+    private lateinit var music : Sound;
+    private lateinit var ambient :Sound;
     private val scoreApi = ScoreApi("https://divingduckserver-v2.azurewebsites.net/")
+    private var musicId by Delegates.notNull<Long>();
 
     override fun show() {
         val previousTimesElapsed = scoreApi.apiScoreGet().map { it.timeElapsed }.filterIsInstance<Float>()
@@ -63,14 +68,14 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
         viewport = FitViewport(virtualWidth, virtualHeight, camera)
         pipeGap = virtualHeight * 0.1f
         pipeHeight = virtualHeight * 0.9f
+        pipeWidth = virtualHeight * 0.05f
         birdHeight = pipeGap * 0.5f
 
-        music = Gdx.audio.newMusic(Gdx.files.internal("sounds/lofistudy.mp3"));
-        ambient = Gdx.audio.newMusic(Gdx.files.internal("sounds/underwater.mp3"));
+        music = Gdx.audio.newSound(Gdx.files.internal("sounds/lofistudy.mp3"));
+        ambient = Gdx.audio.newSound(Gdx.files.internal("sounds/underwater.mp3"));
 
         // Start playing the music
-        music.play();
-        music.volume = 0.2f;
+        musicId = music.play(1.0f);
         ambient.play()
 
         // Load textures
@@ -97,7 +102,7 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
         // Add systems to the engine
         engine.addSystem(ParallaxSystem(camera, batch))
         engine.addSystem(RenderSystem(camera, batch))
-        engine.addSystem(UpdateSystem(virtualHeight, music))
+        engine.addSystem(UpdateSystem(virtualHeight, music, musicId))
 
         engine.addSystem(RenderSystem(camera, batch))
         setInputProcessor();
@@ -136,7 +141,7 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
         val pipeEntity = Entity()
         pipeEntity.add(PositionComponent(Vector2(virtualWidth, y)))
         pipeEntity.add(PipeComponent())
-        pipeEntity.add(SizeComponent(PIPE_WIDTH, PIPE_HEIGHT))
+        pipeEntity.add(SizeComponent(pipeWidth, pipeHeight))
         pipeEntity.add(CollisionComponent())
         pipeEntity.add(TextureComponent(pipeTexture)) // Add texture component
         pipeEntity.add(VelocityComponent(Vector2(-150F, 0F)))
@@ -157,12 +162,11 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
     }
 
     override fun dispose() {
-        music.stop();
+        //music.stop();
     }
 
     companion object {
         private const val PIPE_WIDTH = 50f
-        private const val PIPE_HEIGHT = 400f
         private const val PIPE_SPAWN_TIME = 1.5f
     }
 

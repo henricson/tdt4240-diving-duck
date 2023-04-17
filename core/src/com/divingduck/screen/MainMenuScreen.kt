@@ -30,11 +30,11 @@ class MainMenuScreen(var game: MainGame) : Screen {
         Gdx.input.inputProcessor = stage
 
         // Create UI elements
-        val titleLabel = Label("My Game", skin, "default").apply {
+        val titleLabel = Label("Diving Duck", skin, "default").apply {
             setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height * 0.75f, Align.center)
         }
 
-        val playButton = TextButton("Play", skin).apply {
+        val playButton = TextButton("Start spillet", skin).apply {
             setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height * 0.5f, Align.center)
             addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {

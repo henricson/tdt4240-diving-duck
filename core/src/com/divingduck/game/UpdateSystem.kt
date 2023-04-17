@@ -3,18 +3,30 @@ package com.divingduck.game
 import com.badlogic.ashley.core.ComponentMapper
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.Family
-import com.badlogic.gdx.audio.Music
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.audio.Sound
+import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.utils.Timer
 import com.divingduck.client.apis.ScoreApi
 import com.divingduck.client.models.ScoreDTO
-import com.divingduck.components.*
+import com.divingduck.components.BirdComponent
+import com.divingduck.components.CollisionComponent
+import com.divingduck.components.ParallaxComponent
+import com.divingduck.components.PipeComponent
+import com.divingduck.components.PositionComponent
+import com.divingduck.components.RotationComponent
+import com.divingduck.components.SizeComponent
+import com.divingduck.components.TombstoneComponent
+import com.divingduck.components.VelocityComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlin.math.atan2
 
-class UpdateSystem(private val virtualHeight: Float, private val music:Music) : EntitySystem() {
+
+class UpdateSystem(private val virtualHeight: Float, private val music: Sound, private val musicId :Long) : EntitySystem() {
     private val birdFamily = Family.all(BirdComponent::class.java).get()
     private val tombstoneFamily = Family.all(TombstoneComponent::class.java).get()
     private val pipeFamily = Family.all(PipeComponent::class.java).get()
@@ -85,7 +97,11 @@ class UpdateSystem(private val virtualHeight: Float, private val music:Music) : 
                     val pipeBounds = Rectangle(pipePosition.position.x, pipePosition.position.y, pipeSize.width, pipeSize.height)
 
                     if (bounds.overlaps(pipeBounds)) {
-                        music.stop()
+
+
+
+
+
                         velocityEntities.forEach{ velocityEntity ->
                             val velocity = velocityMapper.get(velocityEntity)
                             velocity.velocity.set(0f, velocity.velocity.y)
@@ -95,6 +111,33 @@ class UpdateSystem(private val virtualHeight: Float, private val music:Music) : 
                             parallaxComponent.speed = 0f
                         }
                         if(shouldReportScore) {
+                            val duration = 5.0f // Duration in seconds
+                            val updateInterval = 1 / 60f
+
+                            Timer.schedule(
+                                object : Timer.Task() {
+                                    var elapsedTime = 0f
+                                    override fun run() {
+                                        elapsedTime += Gdx.graphics.deltaTime
+                                        var progress = elapsedTime / duration
+                                        if (progress > 1.0f) {
+                                            progress = 1.0f
+                                        }
+
+                                        // Use interpolation to calculate pitch and volume
+                                        val pitch = Interpolation.linear.apply(1.0f, 0.0f, progress)
+                                        val volume = Interpolation.fade.apply(1.0f, 0.0f, progress)
+                                        music.setPitch(musicId, pitch)
+                                        music.setVolume(musicId, volume)
+                                        if (progress >= 1.0f) {
+                                            music.stop()
+                                            cancel()
+                                        }
+                                    }
+                                },
+                                0f,
+                                updateInterval,
+                            ) // Update four times as often for smoother transition
                             // Do the networking on a background thread
                             GlobalScope.launch(Dispatchers.IO) {
                                 apiClient.apiScorePost(ScoreDTO(totalTimePassed, 1))
