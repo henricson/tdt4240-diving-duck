@@ -2,17 +2,14 @@ package com.divingduck.screen
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
-import com.badlogic.drop.MainGame
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.audio.Music
-import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.FitViewport
@@ -27,7 +24,6 @@ import com.divingduck.components.SizeComponent
 import com.divingduck.components.TextureComponent
 import com.divingduck.components.TombstoneComponent
 import com.divingduck.components.VelocityComponent
-import com.divingduck.game.DivingDuck
 import com.divingduck.game.ParallaxSystem
 import com.divingduck.game.RenderSystem
 import com.divingduck.game.UpdateSystem
@@ -69,6 +65,14 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
         pipeHeight = virtualHeight * 0.9f
         birdHeight = pipeGap * 0.5f
 
+        music = Gdx.audio.newMusic(Gdx.files.internal("sounds/lofistudy.mp3"));
+        ambient = Gdx.audio.newMusic(Gdx.files.internal("sounds/underwater.mp3"));
+
+        // Start playing the music
+        music.play();
+        music.volume = 0.2f;
+        ambient.play()
+
         // Load textures
         birdTexture = Texture("duck.png") // Replace with your bird image path
         topPipeTexture = Texture("pipeUp.png")
@@ -93,23 +97,19 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
         // Add systems to the engine
         engine.addSystem(ParallaxSystem(camera, batch))
         engine.addSystem(RenderSystem(camera, batch))
-        engine.addSystem(UpdateSystem(virtualHeight))
+        engine.addSystem(UpdateSystem(virtualHeight, music))
 
         engine.addSystem(RenderSystem(camera, batch))
         setInputProcessor();
-        music = Gdx.audio.newMusic(Gdx.files.internal("sounds/lofistudy.mp3"));
-        ambient = Gdx.audio.newMusic(Gdx.files.internal("sounds/underwater.mp3"));
 
-        // Start playing the music
-        music.play();
-        music.volume = 0.2f;
-        ambient.play()
     }
+
+
 
     override fun render(delta: Float) {
         timeSinceLastPipe += Gdx.graphics.deltaTime
         totalTimePassed += Gdx.graphics.deltaTime
-        if (timeSinceLastPipe > DivingDuck.PIPE_SPAWN_TIME) {
+        if (timeSinceLastPipe >PIPE_SPAWN_TIME) {
             spawnPipe()
             timeSinceLastPipe = 0f
         }

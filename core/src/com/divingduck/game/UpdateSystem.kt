@@ -3,21 +3,27 @@ package com.divingduck.game
 import com.badlogic.ashley.core.ComponentMapper
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.Family
+import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
 import com.divingduck.client.apis.ScoreApi
 import com.divingduck.client.models.ScoreDTO
 import com.divingduck.components.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlin.math.atan2
 
-class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
+class UpdateSystem(private val virtualHeight: Float, private val music:Music) : EntitySystem() {
     private val birdFamily = Family.all(BirdComponent::class.java).get()
     private val tombstoneFamily = Family.all(TombstoneComponent::class.java).get()
     private val pipeFamily = Family.all(PipeComponent::class.java).get()
     private val velocityFamily = Family.all(VelocityComponent::class.java, PositionComponent::class.java).get()
 
+    private val velocityMapper = ComponentMapper.getFor(VelocityComponent::class.java)
     private val collisionMapper = ComponentMapper.getFor(CollisionComponent::class.java)
     private val positionMapper = ComponentMapper.getFor(PositionComponent::class.java)
+    private val parallaxMapper = ComponentMapper.getFor(ParallaxComponent::class.java)
     private val sizeMapper = ComponentMapper.getFor(SizeComponent::class.java)
     private val apiClient = ScoreApi("https://divingduckserver-v2.azurewebsites.net/")
     private var shouldReportScore = true;
@@ -69,20 +75,30 @@ class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
 
             // Collisions
             if (collisionMapper.has(birdEntity)) {
-                val collidable = collisionMapper.get(birdEntity)
                 val bounds = Rectangle(positionComponent.position.x, positionComponent.position.y, sizeComponent.width, sizeComponent.height)
                 val pipeEntities = engine.getEntitiesFor(Family.all(PipeComponent::class.java, PositionComponent::class.java, CollisionComponent::class.java).get())
-
+                val velocityEntities = engine.getEntitiesFor(Family.all(VelocityComponent::class.java, PositionComponent::class.java).get())
+                val parallaxEntities = engine.getEntitiesFor(Family.all(ParallaxComponent::class.java).get())
                 pipeEntities.forEach { pipeEntity ->
                     val pipePosition = positionMapper.get(pipeEntity)
                     val pipeSize = sizeMapper.get(pipeEntity)
                     val pipeBounds = Rectangle(pipePosition.position.x, pipePosition.position.y, pipeSize.width, pipeSize.height)
 
                     if (bounds.overlaps(pipeBounds)) {
+                        music.stop()
+                        velocityEntities.forEach{ velocityEntity ->
+                            val velocity = velocityMapper.get(velocityEntity)
+                            velocity.velocity.set(0f, velocity.velocity.y)
+                        }
+                        parallaxEntities.forEach { parallaxEntity ->
+                            val parallaxComponent = parallaxMapper.get(parallaxEntity)
+                            parallaxComponent.speed = 0f
+                        }
                         if(shouldReportScore) {
-
-                            println("Collision detected! Score is ${totalTimePassed}")
-                            apiClient.apiScorePost(ScoreDTO(totalTimePassed, 1))
+                            // Do the networking on a background thread
+                            GlobalScope.launch(Dispatchers.IO) {
+                                apiClient.apiScorePost(ScoreDTO(totalTimePassed, 1))
+                            }
                             shouldReportScore = false
                         }
 
