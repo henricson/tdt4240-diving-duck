@@ -207,7 +207,6 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
         return tombStoneEntity;
     }
 
-
     private fun createBackgroundEntity(x: Float, texture: Texture, speed: Float): Entity {
         val backgroundEntity = Entity()
         backgroundEntity.add(PositionComponent(Vector2(x, 0f))) // Set x position to the passed value
@@ -217,7 +216,7 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
     }
 
     override fun onSpawn(initialXPos: Float) {
-        //println("spawning tombstone at x pos " + initialXPos)
+        println("spawning tombstone at x pos " + initialXPos)
         engine.addEntity(createTombstoneEntity(initialXPos))
     }
 
