@@ -38,13 +38,18 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
         val titleLabel = Label("Innstillinger", skin).apply {
             setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height * 0.9f, Align.center)
         }
+        val gravityLabel = Label("Tyngdekraft:", skin).apply {
+            setPosition(Gdx.graphics.width / 2f - 150f, Gdx.graphics.height * 0.6f, Align.right)
+        }
+
+        stage.addActor(gravityLabel)
         stage.addActor(titleLabel)
 
         // Create the gravity slider
         gravitySlider = Slider(-900F, -300F, 1F, false, skin).apply {
             value = -600F
-            width = Gdx.graphics.width * 0.8f
-            setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height * 0.6f, Align.center)
+            width = Gdx.graphics.width * 0.6f
+            setPosition(Gdx.graphics.width / 2f + 50f, Gdx.graphics.height * 0.6f, Align.center)
         }
         stage.addActor(gravitySlider)
 
@@ -59,7 +64,7 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
         }
 
         // Add the main menu button
-        val mainMenuButton = TextButton("Main menu", skin).apply {
+        val mainMenuButton = TextButton("Hovedmeny", skin).apply {
             setPosition(Gdx.graphics.width * 0.9f, Gdx.graphics.height * 0.9f, Align.topRight)
         }
         stage.addActor(mainMenuButton)
@@ -85,6 +90,7 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
     }
 
     override fun render(delta: Float) {
+        Gdx.input.inputProcessor = stage
         // Clear the screen
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
