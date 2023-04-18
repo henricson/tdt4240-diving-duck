@@ -8,5 +8,5 @@ class BirdComponent(
         var isJumping: Boolean = false,
         val jumpVector: Vector2 = Vector2(0F, 250F)
 ) : Component {
-        var gravity: Float = SettingsScreen.gravity
+        var gravity: Float = -SettingsScreen.gravity
 }

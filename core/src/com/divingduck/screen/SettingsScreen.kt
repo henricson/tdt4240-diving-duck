@@ -9,6 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Slider
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
@@ -42,32 +44,24 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
             setPosition(Gdx.graphics.width / 2f - 150f, Gdx.graphics.height * 0.6f, Align.right)
         }
 
-        stage.addActor(gravityLabel)
-        stage.addActor(titleLabel)
-
         // Create the gravity slider
-        gravitySlider = Slider(-900F, -300F, 1F, false, skin).apply {
-            value = -600F
+        gravitySlider = Slider(400F, 800F, 1F, false, skin).apply {
+            value = 600F
             width = Gdx.graphics.width * 0.6f
             setPosition(Gdx.graphics.width / 2f + 50f, Gdx.graphics.height * 0.6f, Align.center)
         }
-        stage.addActor(gravitySlider)
 
-        // Add a listener to the slider to update the gravity value
-        gravitySlider.addListener { event ->
-            if (event.isHandled) {
+        // Add a ChangeListener to the slider to update the gravity value
+        gravitySlider.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
                 gravity = gravitySlider.value
-                true
-            } else {
-                false
             }
-        }
+        })
 
         // Add the main menu button
         val mainMenuButton = TextButton("Hovedmeny", skin).apply {
             setPosition(Gdx.graphics.width * 0.9f, Gdx.graphics.height * 0.9f, Align.topRight)
         }
-        stage.addActor(mainMenuButton)
 
         mainMenuButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -75,12 +69,12 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
             }
         })
 
+        stage.addActor(gravityLabel)
+        stage.addActor(titleLabel)
+        stage.addActor(gravitySlider)
+        stage.addActor(mainMenuButton)
+
         Gdx.input.inputProcessor = stage
-    }
-
-
-    fun changeGravity(newGravity: Float) {
-        gravity = newGravity
     }
 
     // Implement the required Screen interface methods here:
