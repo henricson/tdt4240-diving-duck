@@ -10,16 +10,16 @@ class BirdComponentTest{
     @Test
     fun `has right values`(){
 
-        val comp = BirdComponent(Vector2(0f, 20f), false);
+        val comp = BirdComponent();
 
         assertFalse(comp.isJumping);
-        assertEquals(Vector2(0f, 20f), comp.velocity);
-        assertEquals(0f,comp.rotation);
+        assertEquals(Vector2(0f, 250f), comp.jumpVector);
+        assertEquals(-600f,comp.gravity);
 
-        val comp2 = BirdComponent(Vector2(50f, 70f), true, 20f);
+        val comp2 = BirdComponent(true, Vector2(50f, 70f), -300f );
         assertTrue(comp2.isJumping);
-        assertEquals(Vector2(50f, 70f), comp2.velocity);
-        assertEquals(20f,comp2.rotation);
+        assertEquals(Vector2(50f, 70f), comp2.jumpVector);
+        assertEquals(300f,comp2.gravity);
 
     }
 }
