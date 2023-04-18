@@ -116,7 +116,7 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
         timeSinceLastPipe += Gdx.graphics.deltaTime
         totalTimePassed += Gdx.graphics.deltaTime
         // TODO Do not do this if game is over
-        if (timeSinceLastPipe >PIPE_SPAWN_TIME) {
+        if (timeSinceLastPipe > PIPE_SPAWN_TIME) {
             spawnPipe()
             timeSinceLastPipe = 0f
         }
@@ -168,7 +168,6 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
     }
 
     companion object {
-        private const val PIPE_WIDTH = 50f
         private const val PIPE_SPAWN_TIME = 1.5f
     }
 
@@ -218,7 +217,6 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
     }
 
     override fun onSpawn(initialXPos: Float) {
-        println("spawning tombstone at x pos " + initialXPos)
         engine.addEntity(createTombstoneEntity(initialXPos))
     }
 
