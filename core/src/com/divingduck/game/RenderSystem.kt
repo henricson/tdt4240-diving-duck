@@ -31,7 +31,7 @@ class RenderSystem(private val camera: OrthographicCamera, private val batch: Ba
 
             if (rotationComponent != null) {
                 sprite.setOriginCenter()
-                sprite.rotation = rotationComponent.rotation.toFloat()
+                sprite.rotation = -rotationComponent.rotation.toFloat()
             }
 
             sprite.draw(batch)

@@ -36,7 +36,7 @@ class DivingDuck : ApplicationAdapter() {
         viewport = FitViewport(virtualWidth, virtualHeight, camera)
         pipeGap = virtualHeight * 0.1f
         pipeHeight = virtualHeight * 0.9f
-        birdHeight = pipeGap * 0.5f
+        birdHeight = pipeGap * 0.6f
 
         // Load textures
         val birdTexture = Texture("duck.png") // Replace with your bird image path
