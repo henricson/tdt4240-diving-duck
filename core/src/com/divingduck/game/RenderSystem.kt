@@ -3,79 +3,40 @@ package com.divingduck.game
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.badlogic.gdx.utils.ScreenUtils
-import com.divingduck.components.*
+import com.badlogic.gdx.graphics.g2d.Batch
+import com.badlogic.gdx.graphics.g2d.Sprite
+import com.divingduck.components.PositionComponent
+import com.divingduck.components.RotationComponent
+import com.divingduck.components.SizeComponent
+import com.divingduck.components.TextureComponent
 
-class RenderSystem(
-    private val shapeRenderer : ShapeRenderer,
-    private val camera: OrthographicCamera,
-    private val batch: SpriteBatch,
-) : EntitySystem() {
+class RenderSystem(private val camera: OrthographicCamera, private val batch: Batch) : EntitySystem() {
     private val renderFamily = Family.all(PositionComponent::class.java, TextureComponent::class.java).get()
-    private val pipeFamily = Family.all(PipeComponent::class.java).get()
 
     override fun update(deltaTime: Float) {
+        val renderEntities = engine.getEntitiesFor(renderFamily)
 
-        // Render textures
-        ScreenUtils.clear(0f, 0f, 0f, 1f)
+        batch.projectionMatrix = camera.combined
         batch.begin()
-        val renderEntities = engine.getEntities();
-        for (renderEntity in renderEntities) {
 
-            val positionComponent = renderEntity.getComponent(PositionComponent::class.java)
-            val textureComponent = renderEntity.getComponent(TextureComponent::class.java)
-            val sizeComponent = renderEntity.getComponent(SizeComponent::class.java)
-            val rotationComponent = renderEntity.getComponent(RotationComponent::class.java)
-            val texture = textureComponent?.texture
+        for (entity in renderEntities) {
+            val positionComponent = entity.getComponent(PositionComponent::class.java)
+            val sizeComponent = entity.getComponent(SizeComponent::class.java)
+            val textureComponent = entity.getComponent(TextureComponent::class.java)
+            val rotationComponent = entity.getComponent(RotationComponent::class.java)
 
-            // SpriteBatch.draw(textureRegion, x, y, originX, originY, width, height, scaleX, scaleY, rotation);
+            val sprite = Sprite(textureComponent.texture)
+            sprite.setPosition(positionComponent.position.x, positionComponent.position.y)
+            sprite.setSize(sizeComponent.width, sizeComponent.height)
 
-            if (texture != null && sizeComponent != null) {
-                if(rotationComponent === null) {
-                    batch.draw(
-                        texture,
-                        positionComponent.position.x,
-                        positionComponent.position.y,
-                        sizeComponent.width,
-                        sizeComponent.height,
-                        )
-                }else{
-                    batch.draw(
-                        TextureRegion(texture, 0, 0, texture.width, texture.height),
-                        positionComponent.position.x,
-                        positionComponent.position.y,
-                        (sizeComponent.width / 2),
-                        (sizeComponent.height / 2),
-                        sizeComponent.width,
-                        sizeComponent.height,
-                        1F,1F,
-                        -rotationComponent.rotation.toFloat()
-                    )
-                }
+            if (rotationComponent != null) {
+                sprite.setOriginCenter()
+                sprite.rotation = -rotationComponent.rotation.toFloat()
             }
+
+            sprite.draw(batch)
         }
 
         batch.end()
-
-        // Draw pipes, TODO: When the pipes textures are inserted, this code will not be needed
-        val pipeEntities = engine.getEntitiesFor(pipeFamily)
-
-        for (pipeEntity in pipeEntities) {
-
-            val positionComponent = pipeEntity.getComponent(PositionComponent::class.java)
-            val sizeComponent = pipeEntity.getComponent(SizeComponent::class.java)
-
-            // Draw pipes as white rectangles
-            shapeRenderer.projectionMatrix = camera.combined
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
-            shapeRenderer.rect(positionComponent.position.x, positionComponent.position.y, sizeComponent.width, sizeComponent.height)
-            shapeRenderer.end()
-            camera.update()
-            batch.projectionMatrix = camera.combined
-        }
-
     }
 }

@@ -1,5 +1,6 @@
 package com.divingduck.game
 
+import com.badlogic.drop.MainGame
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
 
@@ -10,6 +11,6 @@ object DesktopLauncher {
         val config = Lwjgl3ApplicationConfiguration()
         config.setForegroundFPS(60)
         config.setTitle("DivingDuck")
-        Lwjgl3Application(DivingDuck(), config)
+        Lwjgl3Application(MainGame(), config)
     }
 }
