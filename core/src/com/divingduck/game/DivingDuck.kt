@@ -58,15 +58,15 @@ class DivingDuck : ApplicationAdapter() {
 
         // Add entities to the engine
         engine.addEntity(birdEntity)
+
         // Add systems to the engine
         engine.addSystem(ParallaxSystem(camera, batch))
-        engine.addSystem(BirdSystem(virtualHeight))
         engine.addSystem(RenderSystem(camera, batch))
-        engine.addSystem(PipeSystem(camera, batch))
+        engine.addSystem(UpdateSystem(virtualHeight))
 
+        engine.addSystem(RenderSystem(camera, batch))
         setInputProcessor()
     }
-
 
     override fun render() {
         timeSinceLastPipe += Gdx.graphics.deltaTime
@@ -98,6 +98,7 @@ class DivingDuck : ApplicationAdapter() {
         pipeEntity.add(SizeComponent(PIPE_WIDTH, PIPE_HEIGHT))
         pipeEntity.add(CollisionComponent())
         pipeEntity.add(TextureComponent(pipeTexture)) // Add texture component
+        pipeEntity.add(VelocityComponent(Vector2(-150F, 0F)))
         return pipeEntity
     }
 
@@ -127,9 +128,11 @@ class DivingDuck : ApplicationAdapter() {
         birdEntity.add(RotationComponent())
         birdEntity.add(CollisionComponent())
         birdEntity.add(TextureComponent(birdTexture))
+        birdEntity.add(VelocityComponent())
         val birdWidth = birdHeight * birdTexture.width / birdTexture.height.toFloat()
         birdEntity.add(SizeComponent(birdWidth, birdHeight))
         birdEntity.add(BirdComponent())
+
         return birdEntity
     }
 
