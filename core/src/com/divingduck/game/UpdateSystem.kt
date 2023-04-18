@@ -157,7 +157,6 @@ class UpdateSystem(private val virtualHeight: Float, private val music: Sound, p
                             }
                             shouldReportScore = false
                         }
-
                     }
                 }
             }

@@ -22,7 +22,7 @@ class ParallaxSystem(private val camera: OrthographicCamera, private val batch: 
             val positionComponent = parallaxEntity.getComponent(PositionComponent::class.java)
             val sizeComponent = parallaxEntity.getComponent(SizeComponent::class.java)
 
-            // Move the background at a slower speed than the pipes
+            // Move the background
             positionComponent.position.x -= parallaxComponent.speed * deltaTime
 
             // Draw the parallax background
