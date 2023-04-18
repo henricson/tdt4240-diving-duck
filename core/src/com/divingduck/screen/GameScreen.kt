@@ -69,7 +69,7 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
         viewport = FitViewport(virtualWidth, virtualHeight, camera)
         pipeGap = virtualHeight * 0.1f
         pipeHeight = virtualHeight * 0.9f
-        pipeWidth = virtualHeight * 0.05f
+        pipeWidth = virtualHeight * 0.1f
         birdHeight = pipeGap * 0.5f
 
         music = Gdx.audio.newSound(Gdx.files.internal("sounds/lofistudy.mp3"));
@@ -115,7 +115,6 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
     override fun render(delta: Float) {
         timeSinceLastPipe += Gdx.graphics.deltaTime
         totalTimePassed += Gdx.graphics.deltaTime
-        // TODO Do not do this if game is over
         if (timeSinceLastPipe > PIPE_SPAWN_TIME) {
             spawnPipe()
             timeSinceLastPipe = 0f
