@@ -1,23 +1,28 @@
 package com.divingduck.game
 
 import com.badlogic.ashley.core.ComponentMapper
+import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.audio.Sound
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Timer
 import com.divingduck.client.apis.ScoreApi
 import com.divingduck.client.models.ScoreDTO
 import com.divingduck.components.BirdComponent
 import com.divingduck.components.CollisionComponent
+import com.divingduck.components.GameoverOverlayComponent
 import com.divingduck.components.ParallaxComponent
 import com.divingduck.components.PipeComponent
 import com.divingduck.components.PositionComponent
 import com.divingduck.components.RotationComponent
 import com.divingduck.components.SizeComponent
+import com.divingduck.components.TextureComponent
 import com.divingduck.components.TombstoneComponent
 import com.divingduck.components.VelocityComponent
 import kotlinx.coroutines.Dispatchers
@@ -88,7 +93,7 @@ class UpdateSystem(private val virtualHeight: Float, private val music: Sound, p
             // Collisions
             if (collisionMapper.has(birdEntity)) {
                 val bounds = Rectangle(positionComponent.position.x, positionComponent.position.y, sizeComponent.width, sizeComponent.height)
-                val pipeEntities = engine.getEntitiesFor(Family.all(PipeComponent::class.java, PositionComponent::class.java, CollisionComponent::class.java).get())
+                val pipeEntities = engine.getEntitiesFor(Family.all(PipeComponent::class.java).get())
                 val velocityEntities = engine.getEntitiesFor(Family.all(VelocityComponent::class.java, PositionComponent::class.java).get())
                 val parallaxEntities = engine.getEntitiesFor(Family.all(ParallaxComponent::class.java).get())
                 pipeEntities.forEach { pipeEntity ->
@@ -97,11 +102,6 @@ class UpdateSystem(private val virtualHeight: Float, private val music: Sound, p
                     val pipeBounds = Rectangle(pipePosition.position.x, pipePosition.position.y, pipeSize.width, pipeSize.height)
 
                     if (bounds.overlaps(pipeBounds)) {
-
-
-
-
-
                         velocityEntities.forEach{ velocityEntity ->
                             val velocity = velocityMapper.get(velocityEntity)
                             velocity.velocity.set(0f, velocity.velocity.y)
@@ -111,6 +111,19 @@ class UpdateSystem(private val virtualHeight: Float, private val music: Sound, p
                             parallaxComponent.speed = 0f
                         }
                         if(shouldReportScore) {
+                            val screenWidth = Gdx.graphics.width.toFloat()
+                            val screenHeight = Gdx.graphics.height.toFloat()
+                            val gameOverTexture = Texture("gameover.png")
+
+                            val centerPosition = Vector2(screenWidth / 2f - gameOverTexture.width.toFloat() / 2, screenHeight / 2f - gameOverTexture.height.toFloat() / 2)
+                            val gameoverOverlayEntity = Entity();
+                            gameoverOverlayEntity.add(PositionComponent(centerPosition))
+                            gameoverOverlayEntity.add(VelocityComponent(Vector2(0F, 0F)))
+                            gameoverOverlayEntity.add(SizeComponent(gameOverTexture.width.toFloat(), gameOverTexture.height.toFloat()))
+                            gameoverOverlayEntity.add(TextureComponent(gameOverTexture))
+                            gameoverOverlayEntity.add(GameoverOverlayComponent())
+                            engine.addEntity(gameoverOverlayEntity);
+
                             val duration = 5.0f // Duration in seconds
                             val updateInterval = 1 / 60f
 

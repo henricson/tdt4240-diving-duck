@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport
 import com.divingduck.client.apis.ScoreApi
 import com.divingduck.components.BirdComponent
 import com.divingduck.components.CollisionComponent
+import com.divingduck.components.GameoverOverlayComponent
 import com.divingduck.components.ParallaxComponent
 import com.divingduck.components.PipeComponent
 import com.divingduck.components.PositionComponent
@@ -114,6 +115,7 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
     override fun render(delta: Float) {
         timeSinceLastPipe += Gdx.graphics.deltaTime
         totalTimePassed += Gdx.graphics.deltaTime
+        // TODO Do not do this if game is over
         if (timeSinceLastPipe >PIPE_SPAWN_TIME) {
             spawnPipe()
             timeSinceLastPipe = 0f
@@ -204,6 +206,8 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
         tombStoneEntity.add(TombstoneComponent())
         return tombStoneEntity;
     }
+
+
 
     private fun createBackgroundEntity(x: Float, texture: Texture, speed: Float): Entity {
         val backgroundEntity = Entity()
