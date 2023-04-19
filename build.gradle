@@ -149,7 +149,7 @@ project(":core") {
         implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
         implementation "com.squareup.moshi:moshi-kotlin:1.11.0"
         implementation "com.squareup.moshi:moshi-adapters:1.11.0"
-        implementation 'com.squareup.okhttp3:okhttp:4.1.1'
+        implementation 'com.squareup.okhttp3:okhttp:4.10.0'
         implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
 
     }
