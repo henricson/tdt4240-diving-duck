@@ -26,7 +26,7 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
 
     companion object {
         private var instance: SettingsScreen? = null
-        var gravity: Float = -600F
+        var gravity: Float = 600F
 
         fun openSettings(game: MainGame) {
             if (instance == null) {
