@@ -205,8 +205,6 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
         return tombStoneEntity;
     }
 
-
-
     private fun createBackgroundEntity(x: Float, texture: Texture, speed: Float): Entity {
         val backgroundEntity = Entity()
         backgroundEntity.add(PositionComponent(Vector2(x, 0f))) // Set x position to the passed value
