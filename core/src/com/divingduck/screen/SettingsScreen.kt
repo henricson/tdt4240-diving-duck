@@ -4,6 +4,7 @@ import com.badlogic.drop.MainGame
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
@@ -17,9 +18,11 @@ import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 
 
+
 class SettingsScreen private constructor(private val game: MainGame) : Screen {
 
-    private val stage = Stage(ScreenViewport())
+    private val camera: OrthographicCamera = OrthographicCamera()
+    private val stage = Stage()
     private val skin = Skin(Gdx.files.internal("default/skin/uiskin.json"))
 
     private val gravitySlider: Slider
@@ -37,11 +40,14 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
     }
 
     init {
+        camera.setToOrtho(false, 800F, 480F)
+        Gdx.input.inputProcessor = stage
+
         val titleLabel = Label("Innstillinger", skin).apply {
             setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height * 0.9f, Align.center)
         }
         val gravityLabel = Label("Tyngdekraft:", skin).apply {
-            setPosition(Gdx.graphics.width / 2f - 150f, Gdx.graphics.height * 0.6f, Align.right)
+            setPosition(Gdx.graphics.width / 2f - 110f - width, Gdx.graphics.height * 0.6f, Align.right)
         }
 
         // Create the gravity slider
@@ -73,8 +79,6 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
         stage.addActor(titleLabel)
         stage.addActor(gravitySlider)
         stage.addActor(mainMenuButton)
-
-        Gdx.input.inputProcessor = stage
     }
 
     // Implement the required Screen interface methods here:
@@ -95,7 +99,6 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
     }
 
     override fun resize(width: Int, height: Int) {
-        // Implement the logic to handle the resizing of the settings screen
         stage.viewport.update(width, height, true)
     }
 
