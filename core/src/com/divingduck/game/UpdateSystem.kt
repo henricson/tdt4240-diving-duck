@@ -25,6 +25,7 @@ import com.divingduck.components.SizeComponent
 import com.divingduck.components.TextureComponent
 import com.divingduck.components.TombstoneComponent
 import com.divingduck.components.VelocityComponent
+import com.divingduck.screen.SettingsScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -140,8 +141,10 @@ class UpdateSystem(private val virtualHeight: Float, private val music: Sound, p
                                         // Use interpolation to calculate pitch and volume
                                         val pitch = Interpolation.linear.apply(1.0f, 0.0f, progress)
                                         val volume = Interpolation.fade.apply(1.0f, 0.0f, progress)
-                                        music.setPitch(musicId, pitch)
-                                        music.setVolume(musicId, volume)
+                                        if (SettingsScreen.musicBoolean) {
+                                            music.setPitch(musicId, pitch)
+                                            music.setVolume(musicId, volume)
+                                        }
                                         if (progress >= 1.0f) {
                                             music.stop()
                                             cancel()

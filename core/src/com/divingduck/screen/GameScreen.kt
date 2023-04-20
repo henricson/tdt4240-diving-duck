@@ -75,8 +75,13 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
         music = Gdx.audio.newSound(Gdx.files.internal("sounds/lofistudy.mp3"));
         ambient = Gdx.audio.newSound(Gdx.files.internal("sounds/underwater.mp3"));
 
-        // Start playing the music
-        musicId = music.play(1.0f);
+        // Start playing the music if music is enabled
+        if (SettingsScreen.musicBoolean) {
+            musicId = music.play(1.0f);
+        }
+        else {
+            musicId = music.play(0.0f);
+        }
         ambient.play()
 
         // Load textures

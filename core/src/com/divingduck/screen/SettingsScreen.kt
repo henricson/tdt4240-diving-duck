@@ -11,12 +11,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Slider
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
-import com.badlogic.gdx.utils.viewport.ScreenViewport
-
+import com.badlogic.gdx.scenes.scene2d.ui.Table
 
 
 class SettingsScreen private constructor(private val game: MainGame) : Screen {
@@ -24,12 +24,14 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
     private val camera: OrthographicCamera = OrthographicCamera()
     private val stage = Stage()
     private val skin = Skin(Gdx.files.internal("default/skin/uiskin.json"))
-
+    private val checkBox = CheckBox(" Music", skin)
+    private val table = Table()
     private val gravitySlider: Slider
 
     companion object {
         private var instance: SettingsScreen? = null
         var gravity: Float = 600F
+        var musicBoolean: Boolean = false
 
         fun openSettings(game: MainGame) {
             if (instance == null) {
@@ -75,6 +77,19 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
             }
         })
 
+        // Initialize the checkmark
+        checkBox.isChecked = musicBoolean
+        checkBox.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                musicBoolean = checkBox.isChecked
+            }
+        })
+
+        // Initialize the table
+        table.setFillParent(true)
+        table.add(checkBox).pad(10f)
+
+        stage.addActor(table)
         stage.addActor(gravityLabel)
         stage.addActor(titleLabel)
         stage.addActor(gravitySlider)
