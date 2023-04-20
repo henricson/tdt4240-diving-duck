@@ -4,29 +4,36 @@ import com.badlogic.drop.MainGame
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Slider
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
-import com.badlogic.gdx.utils.viewport.ScreenViewport
+import com.badlogic.gdx.scenes.scene2d.ui.Table
 
 
 class SettingsScreen private constructor(private val game: MainGame) : Screen {
 
-    private val stage = Stage(ScreenViewport())
+    private val camera: OrthographicCamera = OrthographicCamera()
+    private val stage = Stage()
     private val skin = Skin(Gdx.files.internal("default/skin/uiskin.json"))
-
+    private val checkBox = CheckBox(" Music", skin)
+    private val table = Table()
     private val gravitySlider: Slider
 
     companion object {
         private var instance: SettingsScreen? = null
         var gravity: Float = 600F
+        var musicBoolean: Boolean = false
+        var map: Int = 1
 
         fun openSettings(game: MainGame) {
             if (instance == null) {
@@ -37,11 +44,14 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
     }
 
     init {
+        camera.setToOrtho(false, 800F, 480F)
+        Gdx.input.inputProcessor = stage
+
         val titleLabel = Label("Innstillinger", skin).apply {
             setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height * 0.9f, Align.center)
         }
         val gravityLabel = Label("Tyngdekraft:", skin).apply {
-            setPosition(Gdx.graphics.width / 2f - 150f, Gdx.graphics.height * 0.6f, Align.right)
+            setPosition(Gdx.graphics.width / 2f - 110f - width, Gdx.graphics.height * 0.6f, Align.right)
         }
 
         // Create the gravity slider
@@ -69,12 +79,41 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
             }
         })
 
+        // Initialize the checkmark
+        checkBox.isChecked = musicBoolean
+        checkBox.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                musicBoolean = checkBox.isChecked
+            }
+        })
+
+        // Create the dropdown menu button (SelectBox)
+        val selectBox = SelectBox<Int>(skin).apply {
+            setItems(1, 2)
+            setSelected(map)
+        }
+
+        // Add a ChangeListener to the SelectBox to update the map value
+        selectBox.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                map = selectBox.selected
+            }
+        })
+
+        // Create a label for the Map text
+        val mapLabel = Label("Bane:", skin)
+
+        // Initialize the table
+        table.setFillParent(true)
+        table.add(mapLabel).pad(10f).padRight(10f)
+        table.add(selectBox).pad(10f).padRight(50f)
+        table.add(checkBox).pad(10f).padLeft(50f)
+
+        stage.addActor(table)
         stage.addActor(gravityLabel)
         stage.addActor(titleLabel)
         stage.addActor(gravitySlider)
         stage.addActor(mainMenuButton)
-
-        Gdx.input.inputProcessor = stage
     }
 
     // Implement the required Screen interface methods here:
@@ -95,7 +134,6 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
     }
 
     override fun resize(width: Int, height: Int) {
-        // Implement the logic to handle the resizing of the settings screen
         stage.viewport.update(width, height, true)
     }
 
