@@ -86,8 +86,10 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
 
         // Load textures
         birdTexture = Texture("duck.png") // Replace with your bird image path
-        topPipeTexture = Texture("pipeUp.png")
-        bottomPipeTexture = Texture("pipeDown.png")
+        val pipeUpTexturePath = if (SettingsScreen.map == 2) "pipeUp2.png" else "pipeUp.png"
+        val pipeDownTexturePath = if (SettingsScreen.map == 2) "pipeDown2.png" else "pipeDown.png"
+        topPipeTexture = Texture(pipeUpTexturePath)
+        bottomPipeTexture = Texture(pipeDownTexturePath)
 
         val backgroundTexture = Texture("background.png") // Replace with your background image path
 

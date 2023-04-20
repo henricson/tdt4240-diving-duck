@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Slider
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
@@ -32,6 +33,7 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
         private var instance: SettingsScreen? = null
         var gravity: Float = 600F
         var musicBoolean: Boolean = false
+        var map: Int = 1
 
         fun openSettings(game: MainGame) {
             if (instance == null) {
@@ -85,9 +87,27 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
             }
         })
 
+        // Create the dropdown menu button (SelectBox)
+        val selectBox = SelectBox<Int>(skin).apply {
+            setItems(1, 2)
+            setSelected(map)
+        }
+
+        // Add a ChangeListener to the SelectBox to update the map value
+        selectBox.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                map = selectBox.selected
+            }
+        })
+
+        // Create a label for the Map text
+        val mapLabel = Label("Bane:", skin)
+
         // Initialize the table
         table.setFillParent(true)
-        table.add(checkBox).pad(10f)
+        table.add(mapLabel).pad(10f).padRight(10f)
+        table.add(selectBox).pad(10f).padRight(50f)
+        table.add(checkBox).pad(10f).padLeft(50f)
 
         stage.addActor(table)
         stage.addActor(gravityLabel)
