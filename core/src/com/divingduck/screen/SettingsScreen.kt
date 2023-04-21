@@ -24,7 +24,7 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
 
     private val camera: OrthographicCamera = OrthographicCamera()
     private val stage = Stage()
-    private val skin = Skin(Gdx.files.internal("default/skin/uiskin.json"))
+    private val skin = Skin(Gdx.files.internal("commodore64/skin/uiskin.json"))
     private val checkBox = CheckBox(" Music", skin)
     private val table = Table()
     private val gravitySlider: Slider

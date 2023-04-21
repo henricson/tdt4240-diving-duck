@@ -22,7 +22,7 @@ interface SceneChange {
 class MainMenuScreen(var game: MainGame) : Screen {
     private var camera : OrthographicCamera = OrthographicCamera();
     private val stage = Stage()
-    private val skin = Skin(Gdx.files.internal("default/skin/uiskin.json"))
+    private val skin = Skin(Gdx.files.internal("commodore64/skin/uiskin.json"))
     private val usernameInput = TextField("", skin)
 
     init {
