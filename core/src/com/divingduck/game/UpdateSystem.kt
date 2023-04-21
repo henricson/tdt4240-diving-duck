@@ -33,16 +33,16 @@ import kotlinx.coroutines.launch
 import kotlin.math.atan2
 
  enum class GlobalEvents {
-GameOver, Playing
+GameOver, Playing, SpawnGrave
 }
 
-interface GlobalEvent {
+interface GlobalEventListener {
     fun onEvent(event: GlobalEvents)
 }
 
 
-class UpdateSystem(private val virtualHeight: Float, private val music: Sound, private val musicId :Long) : EntitySystem() {
-    private var listeners = mutableListOf<GlobalEvent>();
+class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
+    private var listeners = mutableListOf<GlobalEventListener>();
     private val birdFamily = Family.all(BirdComponent::class.java).get()
     private val tombstoneFamily = Family.all(TombstoneComponent::class.java).get()
     private val pipeFamily = Family.all(PipeComponent::class.java).get()
@@ -57,7 +57,7 @@ class UpdateSystem(private val virtualHeight: Float, private val music: Sound, p
     private var shouldReportScore = true;
     private var totalTimePassed = 0f;
 
-    fun addListener(listener: GlobalEvent) {
+    fun addListener(listener: GlobalEventListener) {
         listeners.add(listener);
     }
 
@@ -154,48 +154,8 @@ class UpdateSystem(private val virtualHeight: Float, private val music: Sound, p
                             parallaxComponent.speed = 0f
                         }
                         if(shouldReportScore) {
-                            val screenWidth = Gdx.graphics.width.toFloat()
-                            val screenHeight = Gdx.graphics.height.toFloat()
-                            val gameOverTexture = Texture("gameover.png")
-
-                            val centerPosition = Vector2(screenWidth / 2f - gameOverTexture.width.toFloat() / 2, screenHeight / 2f - gameOverTexture.height.toFloat() / 2)
-                            val gameoverOverlayEntity = Entity();
-                            gameoverOverlayEntity.add(PositionComponent(centerPosition))
-                            gameoverOverlayEntity.add(VelocityComponent(Vector2(0F, 0F)))
-                            gameoverOverlayEntity.add(SizeComponent(gameOverTexture.width.toFloat(), gameOverTexture.height.toFloat()))
-                            gameoverOverlayEntity.add(TextureComponent(gameOverTexture))
-                            gameoverOverlayEntity.add(GameoverOverlayComponent())
-                            engine.addEntity(gameoverOverlayEntity);
-
-                            val duration = 5.0f // Duration in seconds
-                            val updateInterval = 1 / 60f
-
-                            Timer.schedule(
-                                object : Timer.Task() {
-                                    var elapsedTime = 0f
-                                    override fun run() {
-                                        elapsedTime += Gdx.graphics.deltaTime
-                                        var progress = elapsedTime / duration
-                                        if (progress > 1.0f) {
-                                            progress = 1.0f
-                                        }
-
-                                        // Use interpolation to calculate pitch and volume
-                                        val pitch = Interpolation.linear.apply(1.0f, 0.0f, progress)
-                                        val volume = Interpolation.fade.apply(1.0f, 0.0f, progress)
-                                        if (SettingsScreen.musicBoolean) {
-                                            music.setPitch(musicId, pitch)
-                                            music.setVolume(musicId, volume)
-                                        }
-                                        if (progress >= 1.0f) {
-                                            music.stop()
-                                            cancel()
-                                        }
-                                    }
-                                },
-                                0f,
-                                updateInterval,
-                            ) // Update four times as often for smoother transition
+                            onCollision()
+                             // Update four times as often for smoother transition
                             // Do the networking on a background thread
                             GlobalScope.launch(Dispatchers.IO) {
                                 apiClient.apiScorePost(ScoreDTO(totalTimePassed, 1))

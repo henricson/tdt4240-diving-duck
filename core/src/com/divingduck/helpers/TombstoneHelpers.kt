@@ -1,15 +1,14 @@
 package com.divingduck.helpers
 
 import com.badlogic.gdx.Gdx
+import com.divingduck.game.GlobalEventListener
+import com.divingduck.game.GlobalEvents
 
-interface TombstoneListener {
-    fun onSpawn(initialXPos: Float)
-}
 
-class TombstoneHelpers(val elapsedTimes: MutableList<Float>) {
-    private val listeners = mutableListOf<TombstoneListener>()
+class TombstoneHelpers(private val elapsedTimes: MutableList<Float>) {
+    private val listeners = mutableListOf<GlobalEventListener>()
 
-    fun addListener(listener: TombstoneListener) {
+    fun addListener(listener: GlobalEventListener) {
         listeners.add(listener)
     }
 
@@ -35,7 +34,7 @@ class TombstoneHelpers(val elapsedTimes: MutableList<Float>) {
                 val xPosition = ((elapsedTime - currentElapsedTime) * velocityX) % screenWidth
                 xPositions.add(xPosition)
                 for (listener in listeners) {
-                    listener.onSpawn(xPosition)
+                    listener.onEvent(GlobalEvents.SpawnGrave)
                 }
                 iterator.remove() // Remove the elapsed time from the list
             }

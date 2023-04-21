@@ -32,7 +32,7 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
     companion object {
         private var instance: SettingsScreen? = null
         var gravity: Float = 600F
-        var musicBoolean: Boolean = false
+        var musicBoolean: Boolean = true
         var map: Int = 1
         var bird: Int = 1
 

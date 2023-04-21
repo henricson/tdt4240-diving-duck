@@ -6,55 +6,47 @@ import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.Screen
-import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.Timer
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.divingduck.client.apis.ScoreApi
 import com.divingduck.components.BirdComponent
-import com.divingduck.components.CollisionComponent
 import com.divingduck.components.GameoverOverlayComponent
 import com.divingduck.components.ParallaxComponent
-import com.divingduck.components.PipeComponent
 import com.divingduck.components.PositionComponent
-import com.divingduck.components.RotationComponent
-import com.divingduck.components.ScoreComponent
 import com.divingduck.components.SizeComponent
 import com.divingduck.components.TextureComponent
-import com.divingduck.components.TombstoneComponent
 import com.divingduck.components.VelocityComponent
-import com.divingduck.game.GlobalEvent
+import com.divingduck.game.EntityManager
+import com.divingduck.game.GameConfig
+import com.divingduck.game.GlobalEventListener
 import com.divingduck.game.GlobalEvents
 import com.divingduck.game.ParallaxSystem
 import com.divingduck.game.RenderSystem
 import com.divingduck.game.UpdateSystem
+import com.divingduck.helpers.EffectHelpers
 import com.divingduck.helpers.TombstoneHelpers
-import com.divingduck.helpers.TombstoneListener
 import kotlin.properties.Delegates
-import kotlin.reflect.jvm.internal.impl.builtins.jvm.JvmBuiltIns.Settings
 
-class GameScreen(game: Game) : Screen, TombstoneListener, GlobalEvent {
+class GameScreen(val game: Game) : Screen, GlobalEventListener {
     private lateinit var batch: SpriteBatch
     private lateinit var camera: OrthographicCamera
     private lateinit var engine: Engine
     private lateinit var birdEntity: Entity
-    private var timeSinceLastPipe = 0f
+    private var timeSinceLastPipe = 75f
     private lateinit var viewport: FitViewport
     private var virtualWidth = 0f
     private var virtualHeight = 0f
-    private var pipeGap = 0f
-    private var pipeHeight = 0f
-    private var pipeWidth = 0f
-    private var birdHeight = 0f
     private var currentGameEvent = GlobalEvents.Playing;
 
-    private lateinit var topPipeTexture: Texture
-    private lateinit var birdTexture: Texture
-    private lateinit var bottomPipeTexture: Texture
+    val gameConfig = GameConfig(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat());
+
+
     private var totalTimePassed = 0f;
     private lateinit var calculationHelpers: TombstoneHelpers;
     private lateinit var music : Sound;
@@ -72,10 +64,6 @@ class GameScreen(game: Game) : Screen, TombstoneListener, GlobalEvent {
         virtualWidth = Gdx.graphics.width.toFloat()
         virtualHeight = Gdx.graphics.height.toFloat()
         viewport = FitViewport(virtualWidth, virtualHeight, camera)
-        pipeGap = virtualHeight * 0.1f
-        pipeHeight = virtualHeight * 0.9f
-        pipeWidth = virtualHeight * 0.1f
-        birdHeight = pipeGap * 0.5f
 
         music = Gdx.audio.newSound(Gdx.files.internal("sounds/lofistudy.mp3"));
         ambient = Gdx.audio.newSound(Gdx.files.internal("sounds/underwater.mp3"));
@@ -90,32 +78,30 @@ class GameScreen(game: Game) : Screen, TombstoneListener, GlobalEvent {
         ambient.play()
 
         // Load textures
-        birdTexture = if (SettingsScreen.bird == 1) Texture("duck.png") else Texture("duck2.png")
-        val pipeUpTexturePath = if (SettingsScreen.map == 2) "pipeUp2.png" else "pipeUp.png"
-        val pipeDownTexturePath = if (SettingsScreen.map == 2) "pipeDown2.png" else "pipeDown.png"
-        topPipeTexture = Texture(pipeUpTexturePath)
-        bottomPipeTexture = Texture(pipeDownTexturePath)
 
-        val backgroundTexture = Texture("background.png") // Replace with your background image path
+
 
         // Create background entities
-        val backgroundEntity1 = createBackgroundEntity(0f, backgroundTexture, 150f)
-        val backgroundEntity2 = createBackgroundEntity(virtualWidth, backgroundTexture, 150f)
+        val backgroundEntity1 = EntityManager.createBackgroundEntity(gameConfig, 0f);
+        val backgroundEntity2 = EntityManager.createBackgroundEntity(gameConfig, Gdx.graphics.width.toFloat());
 
         // Add background entities to the engine
         engine.addEntity(backgroundEntity1)
         engine.addEntity(backgroundEntity2)
 
         // Create entities
-        birdEntity = createBirdEntity(birdTexture)
+        birdEntity = EntityManager.createBirdEntity(gameConfig)
 
         // Add entities to the engine
         engine.addEntity(birdEntity)
 
+        val updateSystem = UpdateSystem(virtualHeight);
+        updateSystem.addListener(this);
+
         // Add systems to the engine
         engine.addSystem(ParallaxSystem(camera, batch))
         engine.addSystem(RenderSystem(camera, batch))
-        engine.addSystem(UpdateSystem(virtualHeight, music, musicId))
+        engine.addSystem(updateSystem);
 
         engine.addSystem(RenderSystem(camera, batch))
         setInputProcessor();
@@ -127,7 +113,7 @@ class GameScreen(game: Game) : Screen, TombstoneListener, GlobalEvent {
     override fun render(delta: Float) {
         timeSinceLastPipe += Gdx.graphics.deltaTime
         totalTimePassed += Gdx.graphics.deltaTime
-        if (timeSinceLastPipe > PIPE_SPAWN_TIME && currentGameEvent == GlobalEvents.Playing) {
+        if (timeSinceLastPipe > gameConfig.pipeSpawnTime && currentGameEvent != GlobalEvents.GameOver) {
             spawnPipe()
             timeSinceLastPipe = 0f
         }
@@ -138,30 +124,22 @@ class GameScreen(game: Game) : Screen, TombstoneListener, GlobalEvent {
     }
 
     private fun spawnPipe() {
-        val posY = MathUtils.random(virtualHeight * 0.1f, virtualHeight * 0.6f)
 
         // Create top pipe
-        val topPipeEntity = createPipeEntity(posY + pipeGap, topPipeTexture)
+        val topPipeEntity = EntityManager.createPipeEntity(gameConfig, true);
         engine.addEntity(topPipeEntity)
 
         // Create bottom pipe
-        val bottomPipeEntity = createPipeEntity(posY - pipeHeight - pipeGap, bottomPipeTexture)
+        val bottomPipeEntity = EntityManager.createPipeEntity(gameConfig, false);
         engine.addEntity(bottomPipeEntity)
     }
 
 
-    private fun createPipeEntity(y: Float, pipeTexture: Texture): Entity {
-        val pipeEntity = Entity()
-        pipeEntity.add(PositionComponent(Vector2(virtualWidth, y)))
-        pipeEntity.add(PipeComponent())
-        pipeEntity.add(SizeComponent(pipeWidth, pipeHeight))
-        pipeEntity.add(CollisionComponent())
-        pipeEntity.add(TextureComponent(pipeTexture)) // Add texture component
-        pipeEntity.add(VelocityComponent(Vector2(-150F, 0F)))
-        return pipeEntity
-    }
+
 
     override fun resize(width: Int, height: Int) {
+        virtualWidth = Gdx.graphics.width.toFloat()
+        virtualHeight = Gdx.graphics.height.toFloat()
         viewport.update(width, height, true)
     }
 
@@ -178,60 +156,50 @@ class GameScreen(game: Game) : Screen, TombstoneListener, GlobalEvent {
         //music.stop();
     }
 
-    companion object {
-        private const val PIPE_SPAWN_TIME = 1.5f
-    }
-
     private fun setInputProcessor() {
         Gdx.input.inputProcessor = object : InputAdapter() {
             override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-                val birdComponent = birdEntity.getComponent(BirdComponent::class.java)
-                birdComponent.isJumping = true
+                when (currentGameEvent) {
+                    GlobalEvents.Playing -> {
+                        println("Jumping!")
+                        val birdComponent = birdEntity.getComponent(BirdComponent::class.java)
+                        birdComponent.isJumping = true
+                    }
+                    GlobalEvents.GameOver -> {
+                        // Reset game
+                        game.screen = GameScreen(game)
+
+                    }
+
+                    else -> {}
+                }
+
                 return true
             }
         }
     }
 
-    private fun createBirdEntity(birdTexture: Texture): Entity {
-        val birdEntity = Entity()
-        birdEntity.add(PositionComponent())
-        birdEntity.add(RotationComponent())
-        birdEntity.add(CollisionComponent())
-        birdEntity.add(TextureComponent(birdTexture))
-        birdEntity.add(VelocityComponent())
-        birdEntity.add(ScoreComponent())
-        val birdWidth = birdHeight * birdTexture.width / birdTexture.height.toFloat()
-        birdEntity.add(SizeComponent(birdWidth, birdHeight))
-        birdEntity.add(BirdComponent())
 
-        return birdEntity
-    }
 
-    private fun createTombstoneEntity(startXPosition : Float) : Entity {
-        val tombStoneEntity = Entity();
-        tombStoneEntity.add(PositionComponent(Vector2(startXPosition, 0f)))
-        tombStoneEntity.add(VelocityComponent(Vector2(-150F, 0F)))
-        val birdWidth = birdHeight * birdTexture.width / birdTexture.height.toFloat()
-        tombStoneEntity.add(SizeComponent(birdWidth, birdHeight))
-        tombStoneEntity.add(TextureComponent(birdTexture))
-        tombStoneEntity.add(TombstoneComponent())
-        return tombStoneEntity;
-    }
 
-    private fun createBackgroundEntity(x: Float, texture: Texture, speed: Float): Entity {
-        val backgroundEntity = Entity()
-        backgroundEntity.add(PositionComponent(Vector2(x, 0f))) // Set x position to the passed value
-        backgroundEntity.add(SizeComponent(virtualWidth, virtualHeight))
-        backgroundEntity.add(ParallaxComponent(texture, speed))
-        return backgroundEntity
-    }
 
-    override fun onSpawn(initialXPos: Float) {
-        engine.addEntity(createTombstoneEntity(initialXPos))
-    }
+
 
     override fun onEvent(event: GlobalEvents) {
-        currentGameEvent = event
+        when (event) {
+            GlobalEvents.Playing -> {
+
+            }
+            GlobalEvents.GameOver -> {
+                currentGameEvent = GlobalEvents.GameOver;
+                engine.addEntity(EntityManager.createGameOverEntity(gameConfig))
+                EffectHelpers.fadeOut(music, musicId)
+            }
+            GlobalEvents.SpawnGrave -> {
+                engine.addEntity(EntityManager.createTombstoneEntity(gameConfig, gameConfig.virtualWidth))
+            }
+
+        }
     }
 
 
