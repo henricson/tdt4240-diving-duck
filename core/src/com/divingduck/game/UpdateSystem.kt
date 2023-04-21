@@ -21,6 +21,7 @@ import com.divingduck.components.ParallaxComponent
 import com.divingduck.components.PipeComponent
 import com.divingduck.components.PositionComponent
 import com.divingduck.components.RotationComponent
+import com.divingduck.components.ScoreComponent
 import com.divingduck.components.SizeComponent
 import com.divingduck.components.TextureComponent
 import com.divingduck.components.TombstoneComponent
@@ -55,8 +56,29 @@ class UpdateSystem(private val virtualHeight: Float, private val music: Sound, p
         updateBird(deltaTime)
         updatePipes(deltaTime)
         updatePosition(deltaTime)
+        updateScore()
     }
 
+    private fun updateScore() {
+        val birdEntity = engine.getEntitiesFor(birdFamily).first()
+        val birdPosition = positionMapper.get(birdEntity)
+        val birdScore = birdEntity.getComponent(ScoreComponent::class.java)
+
+        val pipeEntities = engine.getEntitiesFor(pipeFamily)
+        for (pipeEntity in pipeEntities) {
+            val pipePosition = positionMapper.get(pipeEntity)
+            val pipeSize = sizeMapper.get(pipeEntity)
+            val pipeComponent = pipeEntity.getComponent(PipeComponent::class.java)
+
+            if (birdPosition.position.x > pipePosition.position.x + pipeSize.width) {
+                // Only consider pipeDown for scoring
+                if (!pipeComponent.isScored && pipePosition.position.y < birdPosition.position.y) {
+                    pipeComponent.isScored = true
+                    birdScore.score += 1
+                }
+            }
+        }
+    }
     private fun updateTombstone(deltaTime: Float) {
         val tombstoneEntities = engine.getEntitiesFor(tombstoneFamily)
         for (birdEntity in tombstoneEntities) {

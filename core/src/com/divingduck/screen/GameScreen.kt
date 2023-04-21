@@ -22,6 +22,7 @@ import com.divingduck.components.ParallaxComponent
 import com.divingduck.components.PipeComponent
 import com.divingduck.components.PositionComponent
 import com.divingduck.components.RotationComponent
+import com.divingduck.components.ScoreComponent
 import com.divingduck.components.SizeComponent
 import com.divingduck.components.TextureComponent
 import com.divingduck.components.TombstoneComponent
@@ -195,6 +196,7 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
         birdEntity.add(CollisionComponent())
         birdEntity.add(TextureComponent(birdTexture))
         birdEntity.add(VelocityComponent())
+        birdEntity.add(ScoreComponent())
         val birdWidth = birdHeight * birdTexture.width / birdTexture.height.toFloat()
         birdEntity.add(SizeComponent(birdWidth, birdHeight))
         birdEntity.add(BirdComponent())
