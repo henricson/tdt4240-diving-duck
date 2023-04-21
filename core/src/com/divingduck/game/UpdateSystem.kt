@@ -32,8 +32,17 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlin.math.atan2
 
+ enum class GlobalEvents {
+GameOver, Playing
+}
+
+interface GlobalEvent {
+    fun onEvent(event: GlobalEvents)
+}
+
 
 class UpdateSystem(private val virtualHeight: Float, private val music: Sound, private val musicId :Long) : EntitySystem() {
+    private var listeners = mutableListOf<GlobalEvent>();
     private val birdFamily = Family.all(BirdComponent::class.java).get()
     private val tombstoneFamily = Family.all(TombstoneComponent::class.java).get()
     private val pipeFamily = Family.all(PipeComponent::class.java).get()
@@ -47,6 +56,17 @@ class UpdateSystem(private val virtualHeight: Float, private val music: Sound, p
     private val apiClient = ScoreApi("https://divingduckserver-v2.azurewebsites.net/")
     private var shouldReportScore = true;
     private var totalTimePassed = 0f;
+
+    fun addListener(listener: GlobalEvent) {
+        listeners.add(listener);
+    }
+
+
+    private fun onCollision() {
+        listeners.forEach{
+            it.onEvent(GlobalEvents.GameOver);
+        }
+    }
 
     override fun update(deltaTime: Float) {
         updateState(deltaTime);

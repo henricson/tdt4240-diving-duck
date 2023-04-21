@@ -27,6 +27,8 @@ import com.divingduck.components.SizeComponent
 import com.divingduck.components.TextureComponent
 import com.divingduck.components.TombstoneComponent
 import com.divingduck.components.VelocityComponent
+import com.divingduck.game.GlobalEvent
+import com.divingduck.game.GlobalEvents
 import com.divingduck.game.ParallaxSystem
 import com.divingduck.game.RenderSystem
 import com.divingduck.game.UpdateSystem
@@ -35,7 +37,7 @@ import com.divingduck.helpers.TombstoneListener
 import kotlin.properties.Delegates
 import kotlin.reflect.jvm.internal.impl.builtins.jvm.JvmBuiltIns.Settings
 
-class GameScreen(game: Game) : Screen, TombstoneListener {
+class GameScreen(game: Game) : Screen, TombstoneListener, GlobalEvent {
     private lateinit var batch: SpriteBatch
     private lateinit var camera: OrthographicCamera
     private lateinit var engine: Engine
@@ -48,6 +50,7 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
     private var pipeHeight = 0f
     private var pipeWidth = 0f
     private var birdHeight = 0f
+    private var currentGameEvent = GlobalEvents.Playing;
 
     private lateinit var topPipeTexture: Texture
     private lateinit var birdTexture: Texture
@@ -124,7 +127,7 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
     override fun render(delta: Float) {
         timeSinceLastPipe += Gdx.graphics.deltaTime
         totalTimePassed += Gdx.graphics.deltaTime
-        if (timeSinceLastPipe > PIPE_SPAWN_TIME) {
+        if (timeSinceLastPipe > PIPE_SPAWN_TIME && currentGameEvent == GlobalEvents.Playing) {
             spawnPipe()
             timeSinceLastPipe = 0f
         }
@@ -225,6 +228,10 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
 
     override fun onSpawn(initialXPos: Float) {
         engine.addEntity(createTombstoneEntity(initialXPos))
+    }
+
+    override fun onEvent(event: GlobalEvents) {
+        currentGameEvent = event
     }
 
 
