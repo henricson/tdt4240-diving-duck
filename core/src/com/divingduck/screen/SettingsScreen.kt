@@ -135,8 +135,6 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
         stage.addActor(mainMenuButton)
     }
 
-    // Implement the required Screen interface methods here:
-
     override fun show() {
 
     }
