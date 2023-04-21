@@ -32,6 +32,7 @@ import com.divingduck.game.UpdateSystem
 import com.divingduck.helpers.TombstoneHelpers
 import com.divingduck.helpers.TombstoneListener
 import kotlin.properties.Delegates
+import kotlin.reflect.jvm.internal.impl.builtins.jvm.JvmBuiltIns.Settings
 
 class GameScreen(game: Game) : Screen, TombstoneListener {
     private lateinit var batch: SpriteBatch
@@ -85,7 +86,7 @@ class GameScreen(game: Game) : Screen, TombstoneListener {
         ambient.play()
 
         // Load textures
-        birdTexture = Texture("duck.png") // Replace with your bird image path
+        birdTexture = if (SettingsScreen.bird == 1) Texture("duck.png") else Texture("duck2.png")
         val pipeUpTexturePath = if (SettingsScreen.map == 2) "pipeUp2.png" else "pipeUp.png"
         val pipeDownTexturePath = if (SettingsScreen.map == 2) "pipeDown2.png" else "pipeDown.png"
         topPipeTexture = Texture(pipeUpTexturePath)

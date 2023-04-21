@@ -34,6 +34,7 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
         var gravity: Float = 600F
         var musicBoolean: Boolean = false
         var map: Int = 1
+        var bird: Int = 1
 
         fun openSettings(game: MainGame) {
             if (instance == null) {
@@ -103,8 +104,26 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
         // Create a label for the Map text
         val mapLabel = Label("Bane:", skin)
 
+        // Create the bird dropdown menu button (SelectBox) with "cute" and "bulky" options
+        val birdSelectBox = SelectBox<String>(skin).apply {
+            setItems("cute", "bulky")
+            setSelected(if (bird == 1) "cute" else "bulky")
+        }
+
+        // Add a ChangeListener to the bird SelectBox to update the bird value
+        birdSelectBox.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                bird = if (birdSelectBox.selected == "cute") 1 else 2
+            }
+        })
+
+        // Create a label for the Bird text
+        val birdLabel = Label("Fugl:", skin)
+
         // Initialize the table
         table.setFillParent(true)
+        table.add(birdLabel).pad(10f).padRight(10f)
+        table.add(birdSelectBox).pad(10f).padRight(50f)
         table.add(mapLabel).pad(10f).padRight(10f)
         table.add(selectBox).pad(10f).padRight(50f)
         table.add(checkBox).pad(10f).padLeft(50f)
