@@ -3,16 +3,20 @@ sourceCompatibility = 18
 
 sourceSets.main.java.srcDirs = [ "src/" ]
 sourceSets.test.java.srcDirs = ["test/"]
+sourceSets.main.resources.srcDirs = ["../assets"]
 
 eclipse.project.name = appName + "-core"
+project.ext.assetsDir = new File("../assets")
 
 repositories {
     google()
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.9.2'
     // Required -- JUnit 4 framework
     testImplementation "junit:junit:4.12"
     // Optional -- Robolectric environment
@@ -27,5 +31,14 @@ dependencies {
     testImplementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
     testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     testImplementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+    testImplementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+
 
 }
+
+test {
+    useJUnitPlatform()
+    workingDir = project.assetsDir
+}
+
+

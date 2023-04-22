@@ -6,50 +6,61 @@ import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.*
 import com.badlogic.gdx.audio.Sound
+import com.badlogic.gdx.backends.headless.HeadlessApplication
+import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration
+import com.badlogic.gdx.backends.headless.mock.*
 import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.GL30
+import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.TextureData
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.divingduck.components.*
 import com.divingduck.game.UpdateSystem
-import org.junit.Assert.*
-import org.junit.Test
-import org.mockito.Mock
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import kotlin.math.atan2
+import kotlin.system.exitProcess
 
 
-public class UpdateSystemTest{
+class UpdateSystemTest{
 
     private lateinit var engine: Engine
+    private lateinit var application: HeadlessApplication
+    private lateinit var system: EntitySystem
 
     private val PIPE_WIDTH = 50f
     private val PIPE_HEIGHT = 400f
 
 
+    @BeforeEach
+    fun setup(){
+        application = HeadlessApplication(object : ApplicationAdapter() {}, object : HeadlessApplicationConfiguration() {})
 
-    private fun setup(): EntitySystem{
         val m : Sound = mock()
+        Gdx.gl = mock(GL20::class.java)
 
 
-        val system = UpdateSystem(3000f, m, 2L)
+
+        system = UpdateSystem(3000f, m, 2L)
+
         engine = Engine()
         engine.addSystem(system)
-
-        return system
     }
+
+    @AfterEach
+    fun cleanUp() {
+        application.exit()
+    }
+
 
     private fun createParallaxEntity(): Entity{
         val t : Texture = mock()
-
-        Gdx.app = Mockito.mock(Application::class.java)
-        Gdx.gl20 = Mockito.mock(GL20::class.java)
-        Gdx.gl = Gdx.gl20;
-        Gdx.graphics = Mockito.mock(Graphics::class.java)
-        Gdx.files = Mockito.mock(Files::class.java)
 
         val parallaxEntity = Entity()
         parallaxEntity.add(PositionComponent())
@@ -85,7 +96,7 @@ public class UpdateSystemTest{
     @Test
     fun `test bird jump`(){
         //Setup the engine and entities and components
-        val system = setup()
+
         val birdEntity = makeBirdEntity()
         engine.addEntity(birdEntity)
 
@@ -112,7 +123,6 @@ public class UpdateSystemTest{
     @Test
     fun `test rotate`(){
         //Setup the engine and entities and components
-        val system = setup()
         val birdEntity = makeBirdEntity()
         engine.addEntity(birdEntity)
 
@@ -158,7 +168,6 @@ public class UpdateSystemTest{
     @Test
     fun `test fall`(){
         //Setup the engine and entities and components
-        val system = setup()
         val birdEntity = makeBirdEntity()
         engine.addEntity(birdEntity)
 
@@ -203,11 +212,47 @@ public class UpdateSystemTest{
 
     }
 
+    @Test
+    fun `test collide`(){
+
+
+        //Setup the engine and entities and components
+        val birdEntity = makeBirdEntity()
+        val pipeEntity = createPipeEntity()
+        val parallaxEntity = createParallaxEntity()
+
+        engine.addEntity(pipeEntity)
+        engine.addEntity(birdEntity)
+        engine.addEntity(parallaxEntity)
+
+        val pipeVelocityComponent = pipeEntity.getComponent(VelocityComponent::class.java)
+        val pipePositionComponent = pipeEntity.getComponent(PositionComponent::class.java)
+
+        val birdVelocityComponent = birdEntity.getComponent(VelocityComponent::class.java)
+        val birdPositionComponent = birdEntity.getComponent(PositionComponent::class.java)
+
+        val parallaxComponent = parallaxEntity.getComponent(ParallaxComponent::class.java)
+
+        //Set components to values for test
+        pipePositionComponent.position.set(Vector2(500f, 500f))
+        birdPositionComponent.position.set(Vector2(500f, 500f))
+        pipeVelocityComponent.velocity.set(Vector2(5f, 0f))
+        birdVelocityComponent.velocity.set(Vector2(0f, 10f))
+        parallaxComponent.speed = 10f
+
+        //Run code to be tested
+        system.update(1f)
+
+        assertEquals(0f,pipeVelocityComponent.velocity.x)
+        assertEquals(0f,birdVelocityComponent.velocity.x)
+        assertEquals(0f,parallaxComponent.speed)
+
+    }
+
 
     @Test
     fun `test pipes`(){
         //Setup the engine and entities and components
-        val system = setup()
         val pipeEntity = createPipeEntity()
         engine.addEntity(pipeEntity)
         var pipeFamily = Family.all(PipeComponent::class.java).get()
@@ -233,7 +278,6 @@ public class UpdateSystemTest{
     @Test
     fun `test position`(){
         //Setup the engine and entities and components
-        val system = setup()
         val birdEntity = makeBirdEntity()
         val pipeEntity = createPipeEntity()
         engine.addEntity(pipeEntity)
