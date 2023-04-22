@@ -1,30 +1,64 @@
 package game
 
-import com.badlogic.ashley.core.ComponentMapper
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.Family
+import com.badlogic.gdx.*
+import com.badlogic.gdx.audio.Sound
+import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.GL30
+import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.TextureData
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.divingduck.components.*
-import com.divingduck.game.DivingDuck
+import com.divingduck.game.UpdateSystem
 import org.junit.Assert.*
 import org.junit.Test
-import com.divingduck.game.UpdateSystem
+import org.mockito.Mock
+import org.mockito.Mockito
+import org.mockito.Mockito.mock
 import kotlin.math.atan2
 
-class UpdateSystemTest{
+
+public class UpdateSystemTest{
+
     private lateinit var engine: Engine
-    private var system = UpdateSystem(3000f)
 
     private val PIPE_WIDTH = 50f
     private val PIPE_HEIGHT = 400f
 
 
-    private fun setup(){
+
+    private fun setup(): EntitySystem{
+        val m : Sound = mock()
+
+
+        val system = UpdateSystem(3000f, m, 2L)
         engine = Engine()
         engine.addSystem(system)
+
+        return system
     }
+
+    private fun createParallaxEntity(): Entity{
+        val t : Texture = mock()
+
+        Gdx.app = Mockito.mock(Application::class.java)
+        Gdx.gl20 = Mockito.mock(GL20::class.java)
+        Gdx.gl = Gdx.gl20;
+        Gdx.graphics = Mockito.mock(Graphics::class.java)
+        Gdx.files = Mockito.mock(Files::class.java)
+
+        val parallaxEntity = Entity()
+        parallaxEntity.add(PositionComponent())
+        parallaxEntity.add(SizeComponent(1000f,3000f))
+        parallaxEntity.add(ParallaxComponent( t,10f))
+        return parallaxEntity
+    }
+
+
 
     private fun makeBirdEntity(): Entity {
         val birdEntity = Entity()
@@ -51,7 +85,7 @@ class UpdateSystemTest{
     @Test
     fun `test bird jump`(){
         //Setup the engine and entities and components
-        setup()
+        val system = setup()
         val birdEntity = makeBirdEntity()
         engine.addEntity(birdEntity)
 
@@ -78,7 +112,7 @@ class UpdateSystemTest{
     @Test
     fun `test rotate`(){
         //Setup the engine and entities and components
-        setup()
+        val system = setup()
         val birdEntity = makeBirdEntity()
         engine.addEntity(birdEntity)
 
@@ -124,7 +158,7 @@ class UpdateSystemTest{
     @Test
     fun `test fall`(){
         //Setup the engine and entities and components
-        setup()
+        val system = setup()
         val birdEntity = makeBirdEntity()
         engine.addEntity(birdEntity)
 
@@ -171,41 +205,9 @@ class UpdateSystemTest{
 
 
     @Test
-    fun `test collide`(){
-        //Setup the engine and entities and components
-        setup()
-
-        val birdEntity = makeBirdEntity()
-        val pipeEntity = createPipeEntity()
-        engine.addEntity(birdEntity)
-        engine.addEntity(pipeEntity)
-
-
-        val birdPositionComponent = birdEntity.getComponent(PositionComponent::class.java)
-        val pipePositionComponent = pipeEntity.getComponent(PositionComponent::class.java)
-        val pipeVelocityComponent = pipeEntity.getComponent(VelocityComponent::class.java)
-
-
-        birdPositionComponent.position.set(Vector2(30f,50f))
-        pipePositionComponent.position.set(Vector2(30f,500f))
-
-        //Checking that registers collision
-        //Try running code, should make exception if collides
-        try{
-            system.update(1f)
-        }
-        catch(e:Exception) {
-            println("Success!")
-            assertTrue(true)
-        }
-
-    }
-
-    @Test
     fun `test pipes`(){
         //Setup the engine and entities and components
-        setup()
-        val birdEntity = makeBirdEntity()
+        val system = setup()
         val pipeEntity = createPipeEntity()
         engine.addEntity(pipeEntity)
         var pipeFamily = Family.all(PipeComponent::class.java).get()
@@ -231,7 +233,7 @@ class UpdateSystemTest{
     @Test
     fun `test position`(){
         //Setup the engine and entities and components
-        setup()
+        val system = setup()
         val birdEntity = makeBirdEntity()
         val pipeEntity = createPipeEntity()
         engine.addEntity(pipeEntity)
@@ -256,14 +258,16 @@ class UpdateSystemTest{
         assertTrue(pipePositionComponent.position.y == 2500f)
         assertEquals(pipePositionComponent.position.x,pipeVelocityComponent.velocity.cpy().scl(1f).x+600f)
 
+
         //Test that update bird position works
         assertNotEquals(Vector2(500f, 1000f), birdPositionComponent.position)
         assertTrue(birdPositionComponent.position.x == 500f)
         assertTrue(birdPositionComponent.position.y < 1000f)
         assertEquals(birdPositionComponent.position.x,birdVelocityComponent.velocity.cpy().scl(1f).x+500f)
 
+
+
     }
 
-    //TODO: Test pipe update and position update
 
 }
