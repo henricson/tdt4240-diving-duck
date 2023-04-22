@@ -21,17 +21,28 @@ import com.divingduck.components.ParallaxComponent
 import com.divingduck.components.PipeComponent
 import com.divingduck.components.PositionComponent
 import com.divingduck.components.RotationComponent
+import com.divingduck.components.ScoreComponent
 import com.divingduck.components.SizeComponent
 import com.divingduck.components.TextureComponent
 import com.divingduck.components.TombstoneComponent
 import com.divingduck.components.VelocityComponent
+import com.divingduck.screen.SettingsScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlin.math.atan2
 
+ enum class GlobalEvents {
+GameOver, Playing
+}
+
+interface GlobalEvent {
+    fun onEvent(event: GlobalEvents)
+}
+
 
 class UpdateSystem(private val virtualHeight: Float, private val music: Sound, private val musicId :Long) : EntitySystem() {
+    private var listeners = mutableListOf<GlobalEvent>();
     private val birdFamily = Family.all(BirdComponent::class.java).get()
     private val tombstoneFamily = Family.all(TombstoneComponent::class.java).get()
     private val pipeFamily = Family.all(PipeComponent::class.java).get()
@@ -46,6 +57,17 @@ class UpdateSystem(private val virtualHeight: Float, private val music: Sound, p
     private var shouldReportScore = true;
     private var totalTimePassed = 0f;
 
+    fun addListener(listener: GlobalEvent) {
+        listeners.add(listener);
+    }
+
+
+    private fun onCollision() {
+        listeners.forEach{
+            it.onEvent(GlobalEvents.GameOver);
+        }
+    }
+
     override fun update(deltaTime: Float) {
         updateState(deltaTime);
     }
@@ -54,8 +76,29 @@ class UpdateSystem(private val virtualHeight: Float, private val music: Sound, p
         updateBird(deltaTime)
         updatePipes(deltaTime)
         updatePosition(deltaTime)
+        updateScore()
     }
 
+    private fun updateScore() {
+        val birdEntity = engine.getEntitiesFor(birdFamily).first()
+        val birdPosition = positionMapper.get(birdEntity)
+        val birdScore = birdEntity.getComponent(ScoreComponent::class.java)
+
+        val pipeEntities = engine.getEntitiesFor(pipeFamily)
+        for (pipeEntity in pipeEntities) {
+            val pipePosition = positionMapper.get(pipeEntity)
+            val pipeSize = sizeMapper.get(pipeEntity)
+            val pipeComponent = pipeEntity.getComponent(PipeComponent::class.java)
+
+            if (birdPosition.position.x > pipePosition.position.x + pipeSize.width) {
+                // Only consider pipeDown for scoring
+                if (!pipeComponent.isScored && pipePosition.position.y < birdPosition.position.y) {
+                    pipeComponent.isScored = true
+                    birdScore.score += 1
+                }
+            }
+        }
+    }
     private fun updateTombstone(deltaTime: Float) {
         val tombstoneEntities = engine.getEntitiesFor(tombstoneFamily)
         for (birdEntity in tombstoneEntities) {
@@ -140,8 +183,10 @@ class UpdateSystem(private val virtualHeight: Float, private val music: Sound, p
                                         // Use interpolation to calculate pitch and volume
                                         val pitch = Interpolation.linear.apply(1.0f, 0.0f, progress)
                                         val volume = Interpolation.fade.apply(1.0f, 0.0f, progress)
-                                        music.setPitch(musicId, pitch)
-                                        music.setVolume(musicId, volume)
+                                        if (SettingsScreen.musicBoolean) {
+                                            music.setPitch(musicId, pitch)
+                                            music.setVolume(musicId, volume)
+                                        }
                                         if (progress >= 1.0f) {
                                             music.stop()
                                             cancel()

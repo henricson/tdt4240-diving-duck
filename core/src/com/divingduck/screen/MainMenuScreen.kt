@@ -22,7 +22,7 @@ interface SceneChange {
 class MainMenuScreen(var game: MainGame) : Screen {
     private var camera : OrthographicCamera = OrthographicCamera();
     private val stage = Stage()
-    private val skin = Skin(Gdx.files.internal("default/skin/uiskin.json"))
+    private val skin = Skin(Gdx.files.internal("commodore64/skin/uiskin.json"))
     private val usernameInput = TextField("", skin)
 
     init {
@@ -34,11 +34,22 @@ class MainMenuScreen(var game: MainGame) : Screen {
             setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height * 0.75f, Align.center)
         }
 
+        // Start game button
         val playButton = TextButton("Start spillet", skin).apply {
             setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height * 0.5f, Align.center)
             addListener(object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     game.setScreen(GameScreen(game));
+                }
+            })
+        }
+
+        // Settings Button
+        val settingsButton = TextButton("Innstillinger", skin).apply {
+            setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height * 0.4f, Align.center)
+            addListener(object : ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    SettingsScreen.openSettings(game)
                 }
             })
         }
@@ -51,6 +62,7 @@ class MainMenuScreen(var game: MainGame) : Screen {
 
         stage.addActor(titleLabel)
         stage.addActor(playButton)
+        stage.addActor(settingsButton)
         stage.addActor(usernameInput)
     }
 
