@@ -2,7 +2,7 @@ package components
 
 import com.divingduck.components.SizeComponent
 import org.junit.Assert.*
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class SizeComponentTest{
 

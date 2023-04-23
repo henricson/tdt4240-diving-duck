@@ -249,7 +249,7 @@ class UpdateSystemTest{
         engine.addEntity(pipeEntity)
         engine.addEntity(birdEntity)
         var pipeFamily = Family.all(PipeComponent::class.java).get()
-        
+
         val positionComponent = pipeEntity.getComponent(PositionComponent::class.java)
         val sizeComponent = pipeEntity.getComponent(SizeComponent::class.java)
 

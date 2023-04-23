@@ -3,7 +3,7 @@ package components
 import com.badlogic.gdx.math.Vector2
 import com.divingduck.components.BirdComponent
 import org.junit.Assert.*
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class BirdComponentTest{
 
