@@ -16,10 +16,9 @@ class BirdComponentTest{
         assertEquals(Vector2(0f, 250f), comp.jumpVector);
         assertEquals(-600f,comp.gravity);
 
-        val comp2 = BirdComponent(true, Vector2(50f, 70f), -300f );
+        val comp2 = BirdComponent(true, Vector2(50f, 70f));
         assertTrue(comp2.isJumping);
         assertEquals(Vector2(50f, 70f), comp2.jumpVector);
-        assertEquals(300f,comp2.gravity);
 
     }
 }

@@ -8,11 +8,8 @@ import com.badlogic.gdx.*
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.backends.headless.HeadlessApplication
 import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration
-import com.badlogic.gdx.backends.headless.mock.*
 import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.TextureData
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.divingduck.components.*
@@ -21,11 +18,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import kotlin.math.atan2
-import kotlin.system.exitProcess
 
 
 class UpdateSystemTest{
@@ -41,12 +35,9 @@ class UpdateSystemTest{
     @BeforeEach
     fun setup(){
         application = HeadlessApplication(object : ApplicationAdapter() {}, object : HeadlessApplicationConfiguration() {})
-
-        val m : Sound = mock()
         Gdx.gl = mock(GL20::class.java)
 
-
-
+        val m : Sound = mock()
         system = UpdateSystem(3000f, m, 2L)
 
         engine = Engine()
@@ -56,6 +47,8 @@ class UpdateSystemTest{
     @AfterEach
     fun cleanUp() {
         application.exit()
+        engine.removeAllSystems()
+        engine.removeAllEntities()
     }
 
 
@@ -79,7 +72,7 @@ class UpdateSystemTest{
         birdEntity.add(VelocityComponent())
         birdEntity.add(SizeComponent(300f, 500f))
         birdEntity.add(BirdComponent())
-
+        birdEntity.add(ScoreComponent())
         return birdEntity;
     }
 
@@ -214,8 +207,6 @@ class UpdateSystemTest{
 
     @Test
     fun `test collide`(){
-
-
         //Setup the engine and entities and components
         val birdEntity = makeBirdEntity()
         val pipeEntity = createPipeEntity()
@@ -254,11 +245,11 @@ class UpdateSystemTest{
     fun `test pipes`(){
         //Setup the engine and entities and components
         val pipeEntity = createPipeEntity()
+        val birdEntity = makeBirdEntity()
         engine.addEntity(pipeEntity)
+        engine.addEntity(birdEntity)
         var pipeFamily = Family.all(PipeComponent::class.java).get()
-
-        val rotationComponent = pipeEntity.getComponent(RotationComponent::class.java)
-        val velocityComponent = pipeEntity.getComponent(VelocityComponent::class.java)
+        
         val positionComponent = pipeEntity.getComponent(PositionComponent::class.java)
         val sizeComponent = pipeEntity.getComponent(SizeComponent::class.java)
 
@@ -309,9 +300,36 @@ class UpdateSystemTest{
         assertTrue(birdPositionComponent.position.y < 1000f)
         assertEquals(birdPositionComponent.position.x,birdVelocityComponent.velocity.cpy().scl(1f).x+500f)
 
-
-
     }
 
+    @Test
+    fun `test score`(){
+        val birdEntity = makeBirdEntity()
+        val pipeEntityUp = createPipeEntity()
+        val pipeEntityDown = createPipeEntity()
 
+        engine.addEntity(pipeEntityUp)
+        engine.addEntity(pipeEntityDown)
+        engine.addEntity(birdEntity)
+
+        val pipePositionComponentDown = pipeEntityDown.getComponent(PositionComponent::class.java)
+
+        val pipePositionComponentUp = pipeEntityUp.getComponent(PositionComponent::class.java)
+
+        val birdComponent = birdEntity.getComponent(BirdComponent::class.java)
+        val birdPositionComponent = birdEntity.getComponent(PositionComponent::class.java)
+        val birdScoreComponent = birdEntity.getComponent(ScoreComponent::class.java)
+
+        assertEquals(0,birdScoreComponent.score)
+
+        //Set components to values for test
+        pipePositionComponentDown.position.set(Vector2(600f, 300f))
+        pipePositionComponentUp.position.set(Vector2(600f, 2500f))
+        birdPositionComponent.position.set(Vector2(2000f, 1000f))
+        birdComponent.isJumping = true
+
+        system.update(2f)
+
+        assertEquals(1,birdScoreComponent.score)
+    }
 }
