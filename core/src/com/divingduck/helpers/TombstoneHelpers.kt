@@ -1,8 +1,8 @@
 package com.divingduck.helpers
 
 import com.badlogic.gdx.Gdx
-import com.divingduck.game.GlobalEventListener
-import com.divingduck.game.GlobalEvents
+import com.divingduck.systems.GlobalEventListener
+import com.divingduck.systems.GlobalEvents
 
 
 class TombstoneHelpers(private val elapsedTimes: MutableList<Float>) {

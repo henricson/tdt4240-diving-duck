@@ -13,7 +13,7 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.divingduck.components.*
-import com.divingduck.game.UpdateSystem
+import com.divingduck.systems.UpdateSystem
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach

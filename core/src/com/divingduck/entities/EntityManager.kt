@@ -1,13 +1,10 @@
 package com.divingduck.game
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.Game
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.divingduck.components.*
-import com.divingduck.screen.GameScreen
 import com.divingduck.screen.SettingsScreen
 import kotlin.math.abs
 
