@@ -28,7 +28,7 @@ class GameScreen(val game: Game) : Screen, GlobalEventListener {
     private lateinit var camera: OrthographicCamera
     private lateinit var engine: Engine
     private lateinit var birdEntity: Entity
-    private var timeSinceLastPipe = 75f
+    private var timeSinceLastPipe = 150f
     private lateinit var viewport: FitViewport
     private var virtualWidth = 0f
     private var virtualHeight = 0f
@@ -150,7 +150,6 @@ class GameScreen(val game: Game) : Screen, GlobalEventListener {
             override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
                 when (currentGameEvent) {
                     GlobalEvents.Playing -> {
-                        println("Jumping!")
                         val birdComponent = birdEntity.getComponent(BirdComponent::class.java)
                         birdComponent.isJumping = true
                     }
@@ -169,11 +168,6 @@ class GameScreen(val game: Game) : Screen, GlobalEventListener {
     }
 
 
-
-
-
-
-
     override fun onEvent(event: GlobalEvents) {
         when (event) {
             GlobalEvents.Playing -> {
@@ -185,7 +179,10 @@ class GameScreen(val game: Game) : Screen, GlobalEventListener {
                 EffectHelpers.fadeOut(music, musicId)
             }
             GlobalEvents.SpawnGrave -> {
-                engine.addEntity(EntityManager.createTombstoneEntity(gameConfig, gameConfig.virtualWidth))
+                if(currentGameEvent !== GlobalEvents.GameOver) {
+                    engine.addEntity(EntityManager.createTombstoneEntity(gameConfig, gameConfig.virtualWidth))
+
+                }
             }
 
         }
