@@ -52,14 +52,14 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
             setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height * 0.9f, Align.center)
         }
         val gravityLabel = Label("Tyngdekraft:", skin).apply {
-            setPosition(Gdx.graphics.width / 2f - 110f - width, Gdx.graphics.height * 0.6f, Align.right)
+            setPosition(Gdx.graphics.width / 2f + 80F - width, Gdx.graphics.height * 0.6f, Align.right)
         }
 
         // Create the gravity slider
         gravitySlider = Slider(400F, 800F, 1F, false, skin).apply {
             value = 600F
-            width = Gdx.graphics.width * 0.6f
-            setPosition(Gdx.graphics.width / 2f + 50f, Gdx.graphics.height * 0.6f, Align.center)
+            width = Gdx.graphics.width * 0.4f
+            setPosition(Gdx.graphics.width / 2f + 90F, Gdx.graphics.height * 0.6f, Align.center)
         }
 
         // Add a ChangeListener to the slider to update the gravity value
@@ -71,7 +71,7 @@ class SettingsScreen private constructor(private val game: MainGame) : Screen {
 
         // Add the main menu button
         val mainMenuButton = TextButton("Hovedmeny", skin).apply {
-            setPosition(Gdx.graphics.width * 0.9f, Gdx.graphics.height * 0.9f, Align.topRight)
+            setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height * 0.1f, Align.bottom)
         }
 
         mainMenuButton.addListener(object : ClickListener() {
