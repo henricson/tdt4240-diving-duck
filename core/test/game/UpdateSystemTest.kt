@@ -38,7 +38,7 @@ class UpdateSystemTest{
         Gdx.gl = mock(GL20::class.java)
 
         val m : Sound = mock()
-        system = UpdateSystem(3000f, m, 2L)
+        system = UpdateSystem(3000f)
 
         engine = Engine()
         engine.addSystem(system)
