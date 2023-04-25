@@ -45,7 +45,8 @@ class GameScreen(val game: Game) : Screen, GlobalEventListener {
     private var musicId by Delegates.notNull<Long>();
 
     override fun show() {
-        val previousTimesElapsed = scoreApi.apiScoreGet().map { it.timeElapsed }.filterIsInstance<Float>()
+        val previousTimesElapsed =
+            scoreApi.apiScoreGet().map { it.timeElapsed }.filterIsInstance<Float>()
         calculationHelpers = TombstoneHelpers(previousTimesElapsed.toMutableList())
         calculationHelpers.addListener(this);
         batch = SpriteBatch()
@@ -61,8 +62,7 @@ class GameScreen(val game: Game) : Screen, GlobalEventListener {
         // Start playing the music if music is enabled
         if (SettingsScreen.musicBoolean) {
             musicId = music.play(1.0f);
-        }
-        else {
+        } else {
             musicId = music.play(0.0f);
         }
         ambient.play()
@@ -70,10 +70,10 @@ class GameScreen(val game: Game) : Screen, GlobalEventListener {
         // Load textures
 
 
-
         // Create background entities
         val backgroundEntity1 = EntityManager.createBackgroundEntity(gameConfig, 0f);
-        val backgroundEntity2 = EntityManager.createBackgroundEntity(gameConfig, Gdx.graphics.width.toFloat());
+        val backgroundEntity2 =
+            EntityManager.createBackgroundEntity(gameConfig, Gdx.graphics.width.toFloat());
 
         // Add background entities to the engine
         engine.addEntity(backgroundEntity1)
@@ -96,9 +96,8 @@ class GameScreen(val game: Game) : Screen, GlobalEventListener {
         engine.addSystem(RenderSystem(camera, batch))
         setInputProcessor();
 
+
     }
-
-
 
     override fun render(delta: Float) {
         timeSinceLastPipe += Gdx.graphics.deltaTime

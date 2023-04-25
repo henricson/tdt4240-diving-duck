@@ -89,12 +89,6 @@ class UpdateSystem(private val virtualHeight: Float) : EntitySystem() {
             }
         }
     }
-    private fun updateTombstone(deltaTime: Float) {
-        val tombstoneEntities = engine.getEntitiesFor(tombstoneFamily)
-        for (birdEntity in tombstoneEntities) {
-
-        }
-    }
 
     private fun updateBird(deltaTime: Float) {
         // Update bird state
